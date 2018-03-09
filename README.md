@@ -29,7 +29,8 @@ dependencies {
 }
 ```
 
-For a standard java application, simply download the provided JAR file and add it to your projects /libs folder.
+For a standard java application, simply download the provided JAR file and add it to your projects 
+/libs folder.
 
 ## Getting Started with Tactile Waves
 
@@ -48,7 +49,7 @@ substitution hardware.
 
 ### WaveInputStream
 
-'WaveInputStream' is an abstract class that contains an underlying `InputStream` to acquire audio 
+`WaveInputStream` is an abstract class that contains an underlying `InputStream` to acquire audio 
 bytes from a stream and convert them audio samples. A `WaveManager` object is used to read a 
 `WaveInputStream` and generate windowed frames of audio.
 
@@ -141,14 +142,14 @@ Version 1.0 - 2018-03-09
 
 ## License
 
-This software is licensed under the GNU General Public License - see the[license.txt](license.txt)file for details
+This software is licensed under the GNU General Public License - see the [license.txt](license.txt) file for details
 
 ## Funding
 
-This project was funded by a Creative Works Award from[CSU Ventures](http://csuventures.org/).
+This project was funded by a Creative Works Award from [CSU Ventures](http://csuventures.org/).
 
 ## Acknowledgments
 
-* Joren Six for his[TarsosDSP](https://github.com/JorenSix/TarsosDSP)Library that provided an excellent learning resource in the early days of my thesis
-* JJ Moritz at[Sapien, LLC](http://www.sapienllc.com/)for bringing me into CSU's sensory substitution research and providing assistance and resources throughout the project
+* Joren Six for his [TarsosDSP](https://github.com/JorenSix/TarsosDSP) Library that provided an excellent learning resource in the early days of my thesis
+* JJ Moritz at [Sapien, LLC](http://www.sapienllc.com/) for bringing me into CSU's sensory substitution research and providing assistance and resources throughout the project
 * Dr. Leslie Stone-Roy and Dr. John Williams at Colorado State University for their advice and guidance
