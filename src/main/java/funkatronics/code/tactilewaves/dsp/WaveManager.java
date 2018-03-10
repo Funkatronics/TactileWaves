@@ -57,6 +57,7 @@
 package funkatronics.code.tactilewaves.dsp;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -123,16 +124,17 @@ public class WaveManager implements Runnable{
      * @param overlap the length of the overlap of each frame, in samples
      */
     public WaveManager(WaveInputStream input, int frameLength, int overlap) {
-        this.mInput = input;
-        this.mFormat = input.getFormat();
-        this.mLength = frameLength;
-        this.mOverlap = overlap;
-        this.mFramesProcessed = 0;
-        this.mTotalSamplesRead = 0;
-        this.mRunning = false;
-        this.mWindow = new Window(Window.WINDOW_RECTANGULAR);
-        this.mSamples = new float[frameLength];
-        this.mFXChain = new LinkedList<>();
+        mInput = input;
+        mFormat = input.getFormat();
+        mLength = frameLength;
+        mOverlap = overlap;
+        mFramesProcessed = 0;
+        mTotalSamplesRead = 0;
+        mRunning = false;
+        mWindow = new Window(Window.WINDOW_RECTANGULAR);
+        mSamples = new float[frameLength];
+        mFXChain = new LinkedList<>();
+        mListeners = new ArrayList<>();
     }
 
     /**
