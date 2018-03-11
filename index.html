@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Tactile Waves Web Page</title>
+  	<meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  	<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+  	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  	<style>
+  		body {
+      	font: 400 15px Lato, sans-serif;
+      	line-height: 1.8;
+      	color: #DADEE1;
+      	background-color: #252525;
+  		}
+  		h1 {
+      	font-size: 24px;
+      	text-transform: uppercase;
+      	color: #DADEE1;
+      	font-weight: 600;
+      	margin-bottom: 30px;
+  		}
+  		h2 {
+      	font-size: 24px;
+      	text-transform: uppercase;
+      	color: #DADEE1;
+      	font-weight: 600;
+      	margin-bottom: 30px;
+  		}
+  		h3 {
+      	font-size: 20px;
+      	color: #fffae2;
+      	font-weight: 400;
+      	margin-bottom: 30px;
+  		} 
+  		h4 {
+      	font-size: 19px;
+      	line-height: 1.375em;
+      	color: #fffae2;
+      	font-weight: 400;
+      	margin-bottom: 30px;
+  		} 
+  		p {
+      	font-size: 14px;
+      	color: #fffae2;
+      	font-weight: 200;
+      	margin-bottom: 30px;
+  		}
+  		a {
+        color: #ceb212;
+        }
+        pre {
+           background-color: #191919; 
+           color: #AF782B;
+        }
+  		.navbar {
+    		margin-bottom: 0;
+    		background-color: #424242;
+      		color: #DADEE1;
+    		z-index: 9999;
+    		border: 0;
+    		font-size: 12px !important;
+    		line-height: 1.42857143 !important;
+    		letter-spacing: 4px;
+    		border-radius: 0;
+		}
+		.navbar li a, .navbar .navbar-brand {
+    		color: #fff !important;
+		}
+		.navbar-nav li a:hover, .navbar-nav li.active a {
+    		color: #AF782B !important;
+    		background-color: #DADEE1 !important;
+		}
+		.navbar-default .navbar-toggle {
+    		border-color: transparent;
+    		color: #fffae2 !important;
+		}
+		.jumbotron { 
+    		background-color: #43394f;
+      		color: #DADEE1;
+      		padding: 100px 100px 0px;
+      		font-family: Montserrat, sans-serif;
+		}
+  		.container-fluid {
+      		padding: 60px 100px 30px;
+  		}
+  		.bg-purple {
+    		background-color: #62636d;
+  		}
+  		.bg-grey {
+      		background-color: #252525;
+  		}
+		.logo-small {
+      		color: #3bceae;
+      		font-size: 50px;
+  		}
+  		.logo {
+      		color: #3bceae;
+      		font-size: 200px;
+  		}
+  		.thumbnail {
+      		padding: 10px 10px 15px 10px;
+      		border: none;
+      		border-radius: 0;
+  		}
+  		.thumbnail img {
+      		width: 100%;
+      		height: 100%;
+      		margin-bottom: 10px;
+  		}
+    	footer .glyphicon {
+    		font-size: 20px;
+    		margin-bottom: 20px;
+    		color: #AF782B;
+		}
+    	.slideanim {visibility:hidden;}
+		.slide {
+    		/* The name of the animation */
+    		animation-name: slide;
+    		-webkit-animation-name: slide; 
+    		/* The duration of the animation */
+    		animation-duration: 1s; 
+    		-webkit-animation-duration: 1s;
+    		/* Make the element visible */
+    		visibility: visible; 
+		}
+
+		/* Go from 0% to 100% opacity (see-through) and specify the percentage from when to slide in the element along the Y-axis */
+		@keyframes slide {
+    		0% {
+        		opacity: 0;
+        		transform: translateY(70%);
+    		} 
+    		100% {
+        		opacity: 1;
+        		transform: translateY(0%);
+    		} 
+		}
+		@-webkit-keyframes slide {
+    		0% {
+        		opacity: 0;
+        		-webkit-transform: translateY(70%);
+    		} 
+    		100% {
+        		opacity: 1;
+        		-webkit-transform: translateY(0%);
+    		}
+		}
+        @media screen and (min-width: 768px) {
+        	.container {
+   				max-width: 800px;
+  			}
+			.container-fluid {
+   				max-width: 800px;
+  			}
+		}
+    	@media screen and (max-width: 768px) {
+    		.col-sm-4 {
+      			text-align: center;
+      			margin: 25px 0;
+    		}
+    		.btn-lg {
+        		width: 100%;
+        		margin-bottom: 35px;
+    		}
+  		}
+  		@media screen and (max-width: 480px) {
+    		.logo {
+        		font-size: 150px;
+    		}
+  		}
+	</style>
+</head>
+
+<body id="myPage" data-spy="scroll" data-target=".navbar" data-offset="60">
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+    	<div class="navbar-header">
+      		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        		<span class="icon-bar"></span>  
+        		<span class="icon-bar"></span>
+        		<span class="icon-bar"></span>                      
+      		</button>
+      		<a class="navbar-brand" href="#myPage">Tactile Waves</a>
+    	</div>
+    	<div class="collapse navbar-collapse" id="myNavbar">
+      		<ul class="nav navbar-nav navbar-right">
+        		<li><a href="https://github.com/Funkatronics/TactileWaves">GITHUB</a></li>
+        		<li><a href="https://bintray.com/funkatronics/tactilewaves/tactilewaves">DOWNLOAD</a></li>
+        		<li><a href="doc/index.html">DOCS</a></li>
+        		<li><a href="#contact">CONTACT</a></li>
+      		</ul>
+    	</div>
+  	</div>
+</nav>
+
+<!-- Title -->
+<div class="container">
+  	<div class="jumbotron text-center">
+    	<h1>Tactile Waves</h1>
+    	<p>Sound-to-Touch Sensory Substituion in Java</p> 
+    	<hr>
+  	</div>
+</div>
+
+<!-- Introduction -->
+<div id="intro" class="container-fluid text-left">
+	<div>
+  	    <p>Tactile Waves is an open source digital signal processing (DSP) library for sound-to-touch sensory substitution research and development. It has been designed to enable mobile devices to be used as the 'back end' of a sound-to-touch sensory substitution system. Using Tactile Waves, audio can be acquired and preprocessed, and important features can be extracted and sent to sensory substitution hardware worn on the body via Bluetooth.
+  	    </p>
+        <p>Tactile Waves can be useful even if you are'nt interested in sensory substitution. As required by sensory substitution applications, Tactile Waves provides a plethora of speech processing functions and audio stream management. These can be used to build audio analysis and feature extraction applications for Android and Java such as a Pitch Detector or Formant Frequency Estimator. Tactile Waves could also be used as a preprocessor and feature extractor for an Automatic Speech Recognition (ASR) system. The possibilities are endless, and it is my hope that users will be encouraged to push the boundaries of the library (and contribute their extensions!).
+        </p>
+    </div>
+</div>
+
+<!-- Instalation -->
+<div id="install" class="container-fluid text-left">
+	<h2>Installation</h2>
+	<hr>
+	<p>Tactile Waves is available as a remote Android Library, as well as a standard JAR file.</p>
+	<p>If you are developing an Android Application, the easiest way to use Tactile waves is to add a dependency to the remote library.</p>
+	<p>Add the following dependency to your apps build.gradle file:</p>
+  	<pre>dependencies {
+  	implementation 'com.funkatronics.code:tactilewaves:1.0.0'
+}</pre>
+</div>
+
+
+
+
+<!-- Contact -->
+<div id="contact" class="container-fluid text-left bg-grey">
+	<h2>CONTACT</h2>
+  	<div class="row">
+    	<div class="col-sm-5">
+      		<p>Drop me a note:</p>
+      		<p><span class="glyphicon glyphicon-map-marker"></span> Fort Collins, US</p>
+      		<p><span class="glyphicon glyphicon-envelope"></span> funkatronicsmail@gmail.com</p>
+    	</div>
+    	<div class="col-sm-7 slideanim">
+      		<div class="row">
+        		<div class="col-sm-6 form-group">
+          			<input class="form-control" id="name" name="name" placeholder="Name" type="text" required>
+        		</div>
+        		<div class="col-sm-6 form-group">
+          			<input class="form-control" id="email" name="email" placeholder="Email" type="email" required>
+        		</div>
+      		</div>
+      		<textarea class="form-control" id="comments" name="comments" placeholder="Comment" rows="5"></textarea><br>
+      		<div class="row">
+        		<div class="col-sm-12 form-group">
+          			<button class="btn btn-default pull-right" type="submit">Send</button>
+        		</div>
+      		</div>
+    	</div>
+  	</div>
+</div>
+
+<footer class="container-fluid text-center">
+	<a href="#myPage" title="To Top">
+    	<span class="glyphicon glyphicon-chevron-up"></span>
+  	</a>
+</footer>
+
+<script>
+	$(document).ready(function(){
+  		// Add smooth scrolling to all links in navbar + footer link
+  		$(".navbar a, footer a[href='#myPage']").on('click', function(event) {
+    		// Make sure this.hash has a value before overriding default behavior
+    		if (this.hash !== "") {
+      			// Prevent default anchor click behavior
+      			event.preventDefault();
+
+      			// Store hash
+      			var hash = this.hash;
+
+      			// Using jQuery's animate() method to add smooth page scroll
+      			// The optional number (900) specifies the number of milliseconds it takes to scroll to the specified area
+      			$('html, body').animate({
+        			scrollTop: $(hash).offset().top
+      			}, 900, function(){
+   
+        			// Add hash (#) to URL when done scrolling (default click behavior)
+        			window.location.hash = hash;
+      			});
+    		} // End if
+  		});
+  
+  		$(window).scroll(function() {
+    		$(".slideanim").each(function(){
+      		var pos = $(this).offset().top;
+
+      		var winTop = $(window).scrollTop();
+        		if (pos < winTop + 600) {
+          			$(this).addClass("slide");
+        		}
+    		});
+  		});
+	})
+</script>
+
+</body>
+</html>
