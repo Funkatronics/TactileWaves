@@ -115,7 +115,7 @@ public abstract class WaveInputStream {
      *
      * @param f the byte buffer array to which data is read
      * @param off location to begin writing to the array
-     * @param len how many bytes to read (len > (b.length-off) ? len = b.length-off)
+     * @param len how many bytes to read ({@code len > (b.length-off) ? len = b.length-off})
      *
      * @return the number of bytes successfully read
      *

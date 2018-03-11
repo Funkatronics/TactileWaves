@@ -113,6 +113,10 @@ public class MFCC {
      * @param minF the minimum frequency of the filter bank
      * @param maxF the maximum frequency of the filter bank
      * @param Nfilt the number of bands in the filter bank
+     * @param Ncoeffs the number of cepstrum coefficients to return
+     * @param lifter the type of liftering to use on the computed coefficients. Choose from
+     *               {@code LIFTERING_NONE}, {@code LIFTERING_LINEAR}, {@code LIFTERING_SINUSOIDAL},
+     *               and {@code LIFTERING_EXPONENTIAL}.
      *
      * @return the Mel Frequency Cepstrum Coefficients
      */
@@ -171,6 +175,10 @@ public class MFCC {
      * @param minF the minimum frequency of the filter bank
      * @param maxF the maximum frequency of the filter bank
      * @param Nfilt the number of bands in the filter bank
+     * @param Ncoeffs the number of cepstrum coefficients to return
+     * @param lifter the type of liftering to use on the computed coefficients. Choose from
+     *               {@code LIFTERING_NONE}, {@code LIFTERING_LINEAR}, {@code LIFTERING_SINUSOIDAL},
+     *               and {@code LIFTERING_EXPONENTIAL}.
      *
      * @return the Mel Frequency Cepstrum Coefficients
      */

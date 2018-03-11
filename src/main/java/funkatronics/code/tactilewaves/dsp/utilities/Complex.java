@@ -62,14 +62,14 @@ package funkatronics.code.tactilewaves.dsp.utilities;
  *      Includes implementations of various mathematical operations with complex numbers including
  *      addition, subtraction, multiplication, division, exponentiation, etc.
  *  </p>
- *  <p>
+ *  <div>
  *      Complex numbers are of the form:
  *      <p>
- *          z = x + yi
+ *          <em>{@code z = x + yi}</em>
  *      </p>
  *      Where x is the real part and y is the imaginary part of the complex number, and z is the
  *      complex number represented by this object
- *  </p>
+ *  </div>
  *
  * @author Marco Martinez
  */

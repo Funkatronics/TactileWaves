@@ -77,11 +77,14 @@ public class RootSolver {
 
     /**
      * Solve for the roots of a polynomial
+     *
      * @param p the polynomial coefficients
      * @param maximizeAccuracy sets the accuracy level of the root solver. A value of true returns
      *                         more accurate results with a larger computational cost.
      *
      * @return the complex roots of the polynomial in a {@link Complex} array
+     *
+     * @throws SolverNotConvergedException if the root solver could not converge to a solution
      */
     public static Complex[] roots(double[] p, boolean maximizeAccuracy)
             throws SolverNotConvergedException {
@@ -101,6 +104,8 @@ public class RootSolver {
      *                      threshold, a {@link SolverNotConvergedException} is thrown.
      *
      * @return the complex roots of the polynomial in a {@link Complex} array
+     *
+     * @throws SolverNotConvergedException if the root solver could not converge to a solution
      */
     public static Complex[] roots(double[] p, double stopThreshold, int maxIterations)
             throws SolverNotConvergedException {

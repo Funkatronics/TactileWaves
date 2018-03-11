@@ -25,7 +25,7 @@ Add the following dependency to your apps build.gradle file:
 
 ```
 dependencies {
-    compile 'com.funkatronics.code:tactilewaves:1.0'
+    implementation 'com.funkatronics.code:tactilewaves:1.0.0'
 }
 ```
 
@@ -132,13 +132,13 @@ Contributions to Tactile Waves are welcomed. If you would live to contribute to 
 
 ## Versioning
 
-Version 1.0 - 2018-03-09
+Version 1.0.0 - 2018-03-09
 * First public release
 
 
 ## Authors
 
-* **Marco Martinez**(*Funkatronics*)
+* **Marco Martinez** (*Funkatronics*)
 
 ## License
 

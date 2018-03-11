@@ -104,6 +104,8 @@ public class AndroidWaveInputStream extends WaveInputStream {
      * Creates an {@code AndroidWaveInputStream} Object and attempts to setup an {@code AudioRecord} object
      * to pipe audio data from the devices microphone
      *
+     * @param bufferSizeInSamples the length of the read buffer, in samples
+     *
      * @throws IOException if an input/output error occurs on the stream
      */
     public AndroidWaveInputStream(int bufferSizeInSamples) throws IOException{

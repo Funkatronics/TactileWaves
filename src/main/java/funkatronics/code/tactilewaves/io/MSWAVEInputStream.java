@@ -93,6 +93,8 @@ public class MSWAVEInputStream extends WaveInputStream{
      * Creates an {@code MSWAVEInputStream} Object to read audio data from a standard WAVE file
      * (*.wav)
      *
+     * @param waveFile the .wav file to read audio from
+     *
      * @throws IOException if an input/output error occurs on the stream
      */
     public MSWAVEInputStream(File waveFile) throws IOException{

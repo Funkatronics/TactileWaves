@@ -59,60 +59,60 @@ package funkatronics.code.tactilewaves.dsp.utilities;
 import java.util.Locale;
 
 /**
- * Class that represents Matrices. The matrix
+ * Class that represents Matrices. The matrix:
+ * <div>
+ *   <table summary="" border="1">
+ *     <tr>
+ *      <td>a<sub>11</sub></td>
+ *      <td>a<sub>12</sub></td>
+ *      <td>a<sub>13</sub></td>
+ *      <td>a<sub>14</sub></td>
+ *     </tr>
+ *     <tr>
+ *      <td>a<sub>21</sub></td>
+ *      <td>a<sub>22</sub></td>
+ *      <td>a<sub>23</sub></td>
+ *      <td>a<sub>24</sub></td>
+ *     </tr>
+ *     <tr>
+ *      <td>a<sub>31</sub></td>
+ *      <td>a<sub>32</sub></td>
+ *      <td>a<sub>33</sub></td>
+ *      <td>a<sub>34</sub></td>
+ *     </tr>
+ *     <tr>
+ *      <td>a<sub>41</sub></td>
+ *      <td>a<sub>42</sub></td>
+ *      <td>a<sub>43</sub></td>
+ *      <td>a<sub>44</sub></td>
+ *     </tr>
+ *   </table>
+ * </div>
  * <p>
- * <table border="1">
- * <tr>
- * <td>a<sub>11</sub></td>
- * <td>a<sub>12</sub></td>
- * <td>a<sub>13</sub></td>
- * <td>a<sub>14</sub></td>
- * </tr>
- * <tr>
- * <td>a<sub>21</sub></td>
- * <td>a<sub>22</sub></td>
- * <td>a<sub>23</sub></td>
- * <td>a<sub>24</sub></td>
- * </tr>
- * <tr>
- * <td>a<sub>31</sub></td>
- * <td>a<sub>32</sub></td>
- * <td>a<sub>33</sub></td>
- * <td>a<sub>34</sub></td>
- * </tr>
- * <tr>
- * <td>a<sub>41</sub></td>
- * <td>a<sub>42</sub></td>
- * <td>a<sub>43</sub></td>
- * <td>a<sub>44</sub></td>
- * </tr>
- * </table>
+ *     is stored column major in a single array, as follows:
  * </p>
- * <p>
- * is stored column major in a single array, as follows:
- * </p>
- * <p>
- * <table border="1">
- * <tr>
- * <td>a<sub>11</sub></td>
- * <td>a<sub>21</sub></td>
- * <td>a<sub>31</sub></td>
- * <td>a<sub>41</sub></td>
- * <td>a<sub>12</sub></td>
- * <td>a<sub>22</sub></td>
- * <td>a<sub>32</sub></td>
- * <td>a<sub>42</sub></td>
- * <td>a<sub>13</sub></td>
- * <td>a<sub>23</sub></td>
- * <td>a<sub>33</sub></td>
- * <td>a<sub>43</sub></td>
- * <td>a<sub>14</sub></td>
- * <td>a<sub>24</sub></td>
- * <td>a<sub>34</sub></td>
- * <td>a<sub>44</sub></td>
- * </tr>
- * </table>
- * </p>
+ * <div>
+ *  <table summary="" border="1">
+ *     <tr>
+ *      <td>a<sub>11</sub></td>
+ *      <td>a<sub>21</sub></td>
+ *      <td>a<sub>31</sub></td>
+ *      <td>a<sub>41</sub></td>
+ *      <td>a<sub>12</sub></td>
+ *      <td>a<sub>22</sub></td>
+ *      <td>a<sub>32</sub></td>
+ *      <td>a<sub>42</sub></td>
+ *      <td>a<sub>13</sub></td>
+ *      <td>a<sub>23</sub></td>
+ *      <td>a<sub>33</sub></td>
+ *      <td>a<sub>43</sub></td>
+ *      <td>a<sub>14</sub></td>
+ *      <td>a<sub>24</sub></td>
+ *      <td>a<sub>34</sub></td>
+ *      <td>a<sub>44</sub></td>
+ *     </tr>
+ *  </table>
+ * </div>
  *
  * @author Marco Martinez
  */

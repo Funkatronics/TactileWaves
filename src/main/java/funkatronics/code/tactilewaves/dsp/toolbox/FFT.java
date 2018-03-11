@@ -518,6 +518,9 @@ public class FFT {
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
+     *
+     * @return a 2D array containing the forward FFT of the input arrays {@code ReX} and {@code ImX}
+     *
      * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
      */
     public static float[][] fftCopy(final float[] ReX, final float[] ImX){
@@ -536,6 +539,9 @@ public class FFT {
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
+     *
+     * @return a 2D array containing the forward FFT of the input arrays {@code ReX} and {@code ImX}
+     *
      * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
      */
     public static double[][] fftCopy(final double[] ReX, final double[] ImX){
@@ -552,6 +558,9 @@ public class FFT {
      * Returns the FFT of the specified complex array.
      *
      * @param  x the complex array
+     *
+     * @return the forward FFT of the input arrays {@code x}
+     *
      * @return the FFT of the complex array {@code x}
      */
     public static Complex[] fftCopy(final Complex[] x) {
@@ -568,6 +577,9 @@ public class FFT {
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
+     *
+     * @return a 2D array containing the inverse FFT of the input arrays {@code ReX} and {@code ImX}
+     *
      * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
      */
     public static float[][] ifftCopy(final float[] ReX, final float[] ImX){
@@ -586,6 +598,9 @@ public class FFT {
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
+     *
+     * @return a 2D array containing the inverse FFT of the input arrays {@code ReX} and {@code ImX}
+     *
      * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
      */
     public static double[][] ifftCopy(final double[] ReX, final double[] ImX){
@@ -602,7 +617,9 @@ public class FFT {
      * Returns the inverse FFT of the specified complex array.
      *
      * @param  x the complex array
+     *
      * @return the inverse FFT of the complex array {@code x}
+     *
      * @throws IllegalArgumentException if the length of {@code x} is not a power of 2
      */
     public static Complex[] ifftCopy(final Complex[] x) {
@@ -892,6 +909,7 @@ public class FFT {
      *
      * @param  ReX real part of signal
      * @param  ImX imaginary part of signal
+     *
      * @throws IllegalArgumentException if the length of {@code ReX} does not equal
      *         the length of {@code ImX}
      */
@@ -945,6 +963,7 @@ public class FFT {
      *
      * @param  ReX real part of signal
      * @param  ImX imaginary part of signal
+     *
      * @throws IllegalArgumentException if the length of {@code ReX} does not equal
      *         the length of {@code ImX}
      */
@@ -1040,6 +1059,7 @@ public class FFT {
      * @param  ImX imaginary part of first
      * @param  ReY real part of second
      * @param  ImY imaginary part of second
+     *
      * @throws IllegalArgumentException if the length of {@code x} does not equal
      *         the length of {@code y} or if the length is not a power of 2
      */
@@ -1071,6 +1091,7 @@ public class FFT {
      * @param  ImX imaginary part of first
      * @param  ReY real part of second
      * @param  ImY imaginary part of second
+     *
      * @throws IllegalArgumentException if the length of {@code x} does not equal
      *         the length of {@code y} or if the length is not a power of 2
      */
@@ -1100,6 +1121,7 @@ public class FFT {
      *
      * @param x the first signal array
      * @param y the second signal array
+     *
      * @throws IllegalArgumentException if the length of {@code x} does not equal
      *         the length of {@code y} or if real and imaginary lengths are not equal
      */
@@ -1127,6 +1149,8 @@ public class FFT {
      * The imaginary part of the input signal is assumed to be zero.
      *
      * @param  x the signal array
+     *
+     * @return the autocorrelation of the input signal x
      */
     public static float[] autocorr(final float[] x) {
         int N = x.length;
@@ -1153,6 +1177,8 @@ public class FFT {
      * The imaginary part of the input signal is assumed to be zero.
      *
      * @param  x the signal array
+     *
+     * @return the autocorrelation of the input signal x
      */
     public static double[] autocorr(final double[] x) {
         int N = x.length;
@@ -1179,6 +1205,8 @@ public class FFT {
      * The imaginary part of the input signal is assumed to be zero.
      *
      * @param  x the signal array
+     *
+     * @return the autocorrelation of the input signal x
      */
     public static Complex[] autocorr(final Complex[] x) {
         int N = x.length;

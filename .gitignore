@@ -1,1 +1,23 @@
+#########################
+## Default
+#########################
 /build
+/doc
+/libs
+/JAVA
+
+#########################
+## Android Studio
+#########################
+/proguard-rules.pro
+/src/androidTest
+/src/main/AndroidManifest.xml
+/src/main/res
+/src/test
+tactilewaves.iml
+
+#########################
+## Gradle
+#########################
+build.gradle
+

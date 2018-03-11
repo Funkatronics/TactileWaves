@@ -108,16 +108,24 @@ public class WaveFormat{
     }
 
     /**
-     * Returns a <code>WaveFormat</code> with the standard Microsoft WAVE format
+     * Returns a <code>WaveFormat</code> with the standard Microsoft WAVE format (Little Endian PCM)
      *
+     * @param sampleRate the sample rate to use in this format
+     * @param bitDepth the number of bits/sample to use in this format
+     * @param channels the number of channels to use in this format
+     *
+     * @return a {@code WaveFormat} with the default Microsoft WAVE audio format parameters
      */
     public static WaveFormat MSWAVEFormat(int sampleRate, int bitDepth, int channels) {
         return new WaveFormat(WaveFormat.ENCODING_PCM_SIGNED, false, sampleRate, bitDepth, channels);
     }
 
     /**
-     * Returns a <code>WaveFormat</code> with the default Android format
+     * Returns a <code>WaveFormat</code> with the default Android format (16 bit mono Big Endian PCM)
      *
+     * @param sampleRate the sample rate to use in this format
+     *
+     * @return a {@code WaveFormat} with the default Android audio format parameters
      */
     public static WaveFormat AndroidFormat(int sampleRate) {
         return new WaveFormat(WaveFormat.ENCODING_PCM_SIGNED, true, sampleRate, 16, 1);
