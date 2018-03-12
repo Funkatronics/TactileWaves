@@ -296,7 +296,7 @@ if(isset($_POST['submit'])){
 </div>
 
 <!-- Versioning -->
-<div id="install" class="container-fluid text-left">
+<div id="versions" class="container-fluid text-left">
 	<h2>Versioning</h2>
     <ul style="list-style-type:square">
     	<li><p>Version 1.0.0 - 2018-03-09<br>First public release</p></li>
@@ -305,7 +305,7 @@ if(isset($_POST['submit'])){
 </div>
 
 <!-- Authors -->
-<div id="install" class="container-fluid text-left">
+<div id="authors" class="container-fluid text-left">
 	<h2>Authors</h2>
     <ul style="list-style-type:square">
   		<li><p>Marco Martinez (Funkatronics) - <a href="Funkatronics.gitub.io">website</a></p></li>
@@ -313,19 +313,19 @@ if(isset($_POST['submit'])){
 </div>
 
 <!-- License -->
-<div id="install" class="container-fluid text-left">
+<div id="license" class="container-fluid text-left">
 	<h2>License</h2>
     <p>This software is licensed under the GNU General Public License - see the <a href="https://github.com/Funkatronics/TactileWaves/blob/master/license.txt">license.txt</a> file for details</p>
 </div>
 
 <!-- Funding -->
-<div id="install" class="container-fluid text-left">
+<div id="funding" class="container-fluid text-left">
 	<h2>Funding</h2>
-    <p>This project was funded by a Creative Works Award from <a hfref="csuventures.org">CSU Ventures</a>.</p>
+    <p>This project was funded by a Creative Works Award from <a href="csuventures.org">CSU Ventures</a>.</p>
 </div>
 
 <!-- Acknowledgments -->
-<div id="install" class="container-fluid text-left">
+<div id="credits" class="container-fluid text-left">
 	<h2>Acknowledgments</h2>
     <ul style="list-style-type:square">
   		<li><p>Joren Six for his <a href="https://github.com/JorenSix/TarsosDSP">TarsosDSP</a> Library that provided an excellent learning resource in the early days of my thesis</p></li>
@@ -333,7 +333,6 @@ if(isset($_POST['submit'])){
         <li><p>Dr. Leslie Stone-Roy and Dr. John Williams at Colorado State University for their advice and guidance</p></li>
 	</ul>
 </div>
-
 
 <!-- Contact -->
 <div id="contact" class="container-fluid text-left bg-grey" style="background-color: #424242;">
@@ -346,17 +345,20 @@ if(isset($_POST['submit'])){
       			<p><span class="glyphicon glyphicon-envelope"></span> funkatronicsmail@gmail.com</p>
     		</div>
     		<div class="col-sm-7 slideanim">
-        		<form action="" method="post">
+        		<form action="https://formspree.io/funkatronicsmail@gmail.com" method="POST">
+					<input type="hidden" name="_subject" value="New Contact from Tactile Waves Web Page" />
+					<input type="hidden" name="_format" value="plain" />
+					<input type="hidden" name="_next" value="//Funkatronics.github.io/TactileWaves/web/thankyou.html" />
       				<div class="row">
         				<div class="col-sm-6 form-group">
-      						<input class="form-control" name="name" placeholder="Name" type="text" required autofocus>
+      						<input class="form-control" name="name" placeholder="Name" type="text" required autofocus />
         				</div>
         				<div class="col-sm-6 form-group">
-          					<input class="form-control" name="email" placeholder="Email" type="email" required>
+          					<input class="form-control" name="email" placeholder="Email" type="email" required />
         				</div>
       				</div>
-      				<textarea class="form-control" name="comments" placeholder="Comment" rows="5" required></textarea>
-            			<br>
+					<textarea class="form-control" name="comments" placeholder="Comment" rows="5" required ></textarea>
+					<br>
       				<div class="row">
         				<div class="col-sm-12 form-group">
                         	<input class="btn btn-default pull-right" type="submit" name="submit" value="Submit">
@@ -367,6 +369,7 @@ if(isset($_POST['submit'])){
   	</div>
 </div>
 
+<!-- Footer -->
 <footer class="container-fluid text-center">
 	<a href="#myPage" title="To Top">
     	<span class="glyphicon glyphicon-chevron-up"></span>
