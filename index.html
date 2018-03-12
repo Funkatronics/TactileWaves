@@ -1,3 +1,23 @@
+<?php 
+if(isset($_POST['submit'])){
+	$to = "funkatronicsmail@gmail.com"; // this is your Email address
+	$from = $_POST['email']; // this is the sender's Email address
+	$name = $_POST['name'];
+	$subject = "Contact From Tactile Waves Project Page";
+	$subject2 = "Copy of your email to funkatronicsmail@gmaail.com";
+	$message = $name . " wrote the following:" . "\n\n" . $_POST['message'];
+	$message2 = "Here is a copy of your message " . $name . "\n\n" . $_POST['message'];
+
+	$headers = "From:" . $from;
+	$headers2 = "From:" . $to;
+	mail($to,$subject,$message,$headers);
+	mail($from,$subject2,$message2,$headers2); // sends a copy of the message to the sender
+	// echo "Mail Sent. Thank you " . $name . ", we will contact you shortly.";
+	header('Location: web/thankyou.html');
+	// You can also use header('Location: thank_you.php'); to redirect to another page.
+	}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,54 +27,62 @@
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   	<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
   	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono" rel="stylesheet" type="text/css">
   	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
   	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   	<style>
+    	html {
+    		font-size: 100%;
+		}
   		body {
-      	font: 400 15px Lato, sans-serif;
-      	line-height: 1.8;
-      	color: #DADEE1;
-      	background-color: #252525;
+    		font-size: 0.625em;
+      		font: Roboto;
+      		line-height: 1.8;
+      		color: #fffae2;
+      		background-color: #252525;
   		}
   		h1 {
-      	font-size: 24px;
-      	text-transform: uppercase;
-      	color: #DADEE1;
-      	font-weight: 600;
-      	margin-bottom: 30px;
+      		font-size: 3.2em;
+      		text-transform: uppercase;
+      		color: #DADEE1;
+      		font-weight: 600;
+      		margin-bottom: 30px;
   		}
   		h2 {
-      	font-size: 24px;
-      	text-transform: uppercase;
-      	color: #DADEE1;
-      	font-weight: 600;
-      	margin-bottom: 30px;
+      		font-size: 2.4em;
+      		text-transform: uppercase;
+      		color: #DADEE1;
+      		font-weight: 600;
+      		margin-bottom: 30px;
   		}
   		h3 {
-      	font-size: 20px;
-      	color: #fffae2;
-      	font-weight: 400;
-      	margin-bottom: 30px;
+      		font-size: 2em;
+      		font-weight: 400;
+      		margin-bottom: 25px;
   		} 
   		h4 {
-      	font-size: 19px;
-      	line-height: 1.375em;
-      	color: #fffae2;
-      	font-weight: 400;
-      	margin-bottom: 30px;
+      		font-size: 1.8em;
+      		line-height: 1.375em;
+      		font-weight: 200;
+      		margin-bottom: 25px;
   		} 
   		p {
-      	font-size: 14px;
-      	color: #fffae2;
-      	font-weight: 200;
-      	margin-bottom: 30px;
+    		font-size: 1.4em;
+      		margin-bottom: 25px;
   		}
   		a {
-        color: #ceb212;
+        	color: #ceb212;
         }
         pre {
-           background-color: #191919; 
-           color: #AF782B;
+      		font: 400 1.4em Roboto Mono;
+           	background-color: #191919; 
+           	color: #AF782B;
+      		margin-bottom: 30px;
+        }
+        code {
+        	font: 200 1em Roboto Mono;
+			background-color: #424242; 
+			color: #DADEE1;
         }
   		.navbar {
     		margin-bottom: 0;
@@ -62,9 +90,9 @@
       		color: #DADEE1;
     		z-index: 9999;
     		border: 0;
-    		font-size: 12px !important;
+    		font-size: 1.2em !important;
     		line-height: 1.42857143 !important;
-    		letter-spacing: 4px;
+    		letter-spacing: 0.4em;
     		border-radius: 0;
 		}
 		.navbar li a, .navbar .navbar-brand {
@@ -85,7 +113,7 @@
       		font-family: Montserrat, sans-serif;
 		}
   		.container-fluid {
-      		padding: 60px 25px 30px;
+      		padding: 20px 25px 30px;
   		}
   		.bg-purple {
     		background-color: #62636d;
@@ -110,7 +138,7 @@
       		width: 100%;
       		height: 100%;
       		margin-bottom: 10px;
-  		}
+  		}		
     	footer .glyphicon {
     		font-size: 20px;
     		margin-bottom: 20px;
@@ -235,34 +263,107 @@
 }</pre>
 </div>
 
+<!-- Getting Started -->
+<div id="start" class="container-fluid text-left">
+	<h2>Getting Started with Tactile Waves</h2>
+	<hr>
+	<p>Tactile Waves provides a system for handling audio recording, buffering, windowing and processing in a few easy to use objects within the tactilewaves.dsp package.</p>
+    <h3>WaveManager</h3>
+	<p>The <code>WaveManager</code> object represents the core of Tactile Waves' audio engine. It reads audio samples from a <code>WaveInputStream</code>, and generates a <code>WaveFrame</code> for each frame of audio acquired. Each <code>WaveFrame</code> is passed through a chain of <code>WaveProcessor</code> objects that perform some useful processing on the frame, and optionally store extracted audio features in the frame's feature set. Processed frames are then sent to any <code>WaveListener</code> objects that have been added to the <code>WaveManager</code>. These listeners can be used to trigger UI updates, or send extracted audio features to sensory substitution hardware.</p>
+    <h3>WaveInputStream</h3>
+	<p><code>WaveInputStream</code> is an abstract class that contains an underlying <code>InputStream</code> to acquire audio bytes from a stream and convert them audio samples. A <code>WaveManager</code> object is used to read a <code>WaveInputStream</code> and generate windowed frames of audio.</p>
+    <h3>WaveFrame</h3>
+	<p>The <code>WaveFrame</code> object represents a single frame of audio. A <code>WaveManager</code> will create <code>WaveFrame</code> objects according the the buffer and overlap length provided. Each <code>WaveFrame</code> is then passed through the <code>WaveManager</code>'s processing chain</p>
+    <h3>WaveProcessor</h3>
+	<p>Tactile Waves uses the <code>WaveProcessor</code> interface to build objects that can be inserted into a <code>WaveManager</code>'s processing chain. Any object that implements this interface can be added to the chain to perform some type of processing or analysis on each frame of audio.</p>
+    <h3>WaveFrameListener</h3>
+	<p>After a <code>WaveFrame</code> has been passed through the entire processing chain, it is sent to any subscribed <code>WaveFrameListener</code> objects. This can be used to trigger events that are dependent on processed audio frames such as UI updates or Bluetooth transmission.</p>
+    <h2>Putting it all Together</h2>
+	<p>A <code>WaveManager</code> is initialized with a <code>WaveInputStream</code> to read audio from, along with a buffer and overlap length.</p>
+	<p>To obtain a stream from an Android device's microphone use:</p>
+    <pre>WaveInputStream inputStream = new AndroidWaveInputStream(bufferSize);</pre>
+    <p>A <code>WaveManager</code> can then be instantiated:</p>
+    <pre>WaveManager waveManager = new WaveManager(inputStream, bufferSize, overlap);</pre>
+    <p>A newly instantiated <code>WaveManager</code> will have an empty processing chain. To add processing to the chain, use the <code>addEffectToChain</code> method to add any object that implements the <code>WaveProcessor</code> interface. Tactile Waves provides several ready to use processors, and users can easily build their own.</p>
+    <p>For example, to estimate the pitch of incoming audio, a <code>PitchProcessor</code> can be used. Add a new <code>PitchProcessor</code> the the <code>Wave Manager</code>'s processing chain:</p>
+    <pre>waveManager.addEffectToChain(new PitchProcessor(bufferSize));</pre>
+    <p>Add any listeners to the <code>WaveManager</code> using the <code>addListener()</code> method:</p>
+    <pre>waveManager.addListener(listener);</pre>
+    <p>The <code>WaveManager</code> is now ready to be started. Calling <code>start()</code> will start processing audio in a new thread.</p>
+    <pre>waveManager.start();</pre>
+    <p>Calling <code>stop()</code> will stop this thread.</p>
+    <pre>waveManager.stop();</pre>
+</div>
 
+<!-- Versioning -->
+<div id="install" class="container-fluid text-left">
+	<h2>Versioning</h2>
+    <ul style="list-style-type:square">
+    	<li><p>Version 1.0.0 - 2018-03-09<br>First public release</p></li>
+	</ul>
+	
+</div>
+
+<!-- Authors -->
+<div id="install" class="container-fluid text-left">
+	<h2>Authors</h2>
+    <ul style="list-style-type:square">
+  		<li><p>Marco Martinez (Funkatronics) - <a href="Funkatronics.gitub.io">website</a></p></li>
+	</ul>
+</div>
+
+<!-- License -->
+<div id="install" class="container-fluid text-left">
+	<h2>License</h2>
+    <p>This software is licensed under the GNU General Public License - see the <a href="https://github.com/Funkatronics/TactileWaves/blob/master/license.txt">license.txt</a> file for details</p>
+</div>
+
+<!-- Funding -->
+<div id="install" class="container-fluid text-left">
+	<h2>Funding</h2>
+    <p>This project was funded by a Creative Works Award from <a hfref="csuventures.org">CSU Ventures</a>.</p>
+</div>
+
+<!-- Acknowledgments -->
+<div id="install" class="container-fluid text-left">
+	<h2>Acknowledgments</h2>
+    <ul style="list-style-type:square">
+  		<li><p>Joren Six for his <a href="https://github.com/JorenSix/TarsosDSP">TarsosDSP</a> Library that provided an excellent learning resource in the early days of my thesis</p></li>
+        <li><p>JJ Moritz at <a href="http://www.sapienllc.com/">Sapien, LLC</a> for bringing me into CSU's sensory substitution research and providing assistance and resources throughout the project</p></li>
+        <li><p>Dr. Leslie Stone-Roy and Dr. John Williams at Colorado State University for their advice and guidance</p></li>
+	</ul>
+</div>
 
 
 <!-- Contact -->
-<div id="contact" class="container-fluid text-left bg-grey">
+<div id="contact" class="container-fluid text-left bg-grey" style="background-color: #424242;">
 	<h2>CONTACT</h2>
+	<hr>
   	<div class="row">
-    	<div class="col-sm-5">
-      		<p>Drop me a note:</p>
-      		<p><span class="glyphicon glyphicon-map-marker"></span> Fort Collins, US</p>
-      		<p><span class="glyphicon glyphicon-envelope"></span> funkatronicsmail@gmail.com</p>
-    	</div>
-    	<div class="col-sm-7 slideanim">
-      		<div class="row">
-        		<div class="col-sm-6 form-group">
-          			<input class="form-control" id="name" name="name" placeholder="Name" type="text" required>
-        		</div>
-        		<div class="col-sm-6 form-group">
-          			<input class="form-control" id="email" name="email" placeholder="Email" type="email" required>
-        		</div>
-      		</div>
-      		<textarea class="form-control" id="comments" name="comments" placeholder="Comment" rows="5"></textarea><br>
-      		<div class="row">
-        		<div class="col-sm-12 form-group">
-          			<button class="btn btn-default pull-right" type="submit">Send</button>
-        		</div>
-      		</div>
-    	</div>
+    		<div class="col-sm-5">
+      			<p>Drop me a note:</p>
+      			<p><span class="glyphicon glyphicon-map-marker"></span> Fort Collins, US</p>
+      			<p><span class="glyphicon glyphicon-envelope"></span> funkatronicsmail@gmail.com</p>
+    		</div>
+    		<div class="col-sm-7 slideanim">
+        		<form action="" method="post">
+      				<div class="row">
+        				<div class="col-sm-6 form-group">
+      						<input class="form-control" name="name" placeholder="Name" type="text" required autofocus>
+        				</div>
+        				<div class="col-sm-6 form-group">
+          					<input class="form-control" name="email" placeholder="Email" type="email" required>
+        				</div>
+      				</div>
+      				<textarea class="form-control" name="comments" placeholder="Comment" rows="5" required></textarea>
+            			<br>
+      				<div class="row">
+        				<div class="col-sm-12 form-group">
+                        	<input class="btn btn-default pull-right" type="submit" name="submit" value="Submit">
+        				</div>
+      				</div>
+            		</form>
+    		</div>
   	</div>
 </div>
 
@@ -311,3 +412,4 @@
 
 </body>
 </html>
+
