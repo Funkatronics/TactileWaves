@@ -1,10 +1,104 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-<title>Thank you!</title>
+	<title>Thank You!</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono" rel="stylesheet" type="text/css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<style>
+    	html {
+    		font-size: 100%;
+		}
+  		body {
+    		font-size: 0.625em;
+      		font: Roboto;
+      		line-height: 1.8;
+      		color: #fffae2;
+      		background-color: #252525;
+  		}
+  		h1 {
+      		font-size: 3.2em;
+      		text-transform: uppercase;
+      		color: #DADEE1;
+      		font-weight: 600;
+      		margin-bottom: 30px;
+  		}
+  		h2 {
+      		font-size: 2.4em;
+      		text-transform: uppercase;
+      		color: #DADEE1;
+      		font-weight: 600;
+      		margin-bottom: 30px;
+  		}
+  		p {
+    		font-size: 1.4em;
+      		margin-bottom: 25px;
+  		}
+  		a {
+        	color: #ceb212;
+        }
+		.jumbotron {
+    		background-color: #43394f;
+      		color: #DADEE1;
+      		padding: 100px 100px 0px;
+      		font-family: Montserrat, sans-serif;
+		}
+  		.container-fluid {
+      		padding: 20px 25px 30px;
+  		}
+  		.bg-purple {
+    		background-color: #62636d;
+  		}
+  		.bg-grey {
+      		background-color: #252525;
+  		}
+        @media screen and (min-width: 768px) {
+        	.container {
+   				max-width: 800px;
+  			}
+			.container-fluid {
+   				max-width: 800px;
+  			}
+		}
+    	@media screen and (max-width: 768px) {
+    		.col-sm-4 {
+      			text-align: center;
+      			margin: 25px 0;
+    		}
+    		.btn-lg {
+        		width: 100%;
+        		margin-bottom: 35px;
+    		}
+  		}
+  		@media screen and (max-width: 480px) {
+    		.logo {
+        		font-size: 150px;
+    		}
+  		}
+	</style>
 </head>
-<body>
 
-<h1>We will contact you shortly.</h1>
+<body id="myPage" data-spy="scroll" data-target=".navbar" data-offset="60">
+
+<!-- Title -->
+<div class="container">
+	<div class="jumbotron text-center">
+		<h1>Thank You!</h1>
+		<p>Your email will be reviewed and replied to shortly</p>
+		<hr>
+	</div>
+</div>
+
+<!-- Introduction -->
+<div id="intro" class="container-fluid text-center">
+	<div>
+		<p>Click <a href="https://funkatronics.github.io/TactileWaves/">here</a> to return to Tactile Waves</p>
+	</div>
+</div>
 
 </body>
 </html>
+
