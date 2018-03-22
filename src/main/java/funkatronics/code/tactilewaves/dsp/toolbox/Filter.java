@@ -373,7 +373,7 @@ public class Filter {
             for (int k = 0; k < a.length; k++)
                 if(k <= n) y[n] += a[k] * x[n - k];
             for (int k = 1; k < b.length; k++)
-                if(k <= n) y[n] += b[k] * y[n - k];
+                if(k <= n) y[n] -= b[k] * y[n - k];
         }
         return y;
     }
@@ -395,7 +395,7 @@ public class Filter {
             for (int k = 0; k < a.length; k++)
                 if(k <= n) y[n] += a[k] * x[n - k];
             for (int k = 1; k < b.length; k++)
-                if(k <= n) y[n] += b[k] * y[n - k];
+                if(k <= n) y[n] -= b[k] * y[n - k];
         }
         return y;
     }
@@ -417,33 +417,63 @@ public class Filter {
             for (int k = 0; k < a.length; k++)
                 if(k <= n) y[n] += a[k] * x[n - k];
             for (int k = 1; k < b.length; k++)
-                if(k <= n) y[n] += b[k] * y[n - k];
+                if(k <= n) y[n] -= b[k] * y[n - k];
         }
         return y;
     }
 
+	/**
+	 * Apply an A-Weighting Filter to a signal/data series
+	 *
+	 * @param x the signal or data series to be filtered
+	 *
+	 * @return the filtered data
+	 */
+	public static float[] aWeighting(float[] x) {
+		double[] a = {1.0, -4.0195761811158341, 6.189406442920701, -4.4531989035441244,
+				1.4208429496218802,	-0.1418254738303048, 0.0043511772334950813};
+		double[] b = {0.25574112520425751, -0.51148225040851258, -0.25574112520426606,
+				1.022964500817038, -0.25574112520426173, -0.51148225040851303, 0.25574112520425674};
+		return Filter.filter(b, a, x);
+	}
+
+	/**
+	 * Apply an A-Weighting Filter to a signal/data series
+	 *
+	 * @param x the signal or data series to be filtered
+	 *
+	 * @return the filtered data
+	 */
+	public static double[] aWeighting(double[] x) {
+		double[] a = {1.0, -4.0195761811158341, 6.189406442920701, -4.4531989035441244,
+				1.4208429496218802,	-0.1418254738303048, 0.0043511772334950813};
+		double[] b = {0.25574112520425751, -0.51148225040851258, -0.25574112520426606,
+				1.022964500817038, -0.25574112520426173, -0.51148225040851303, 0.25574112520425674};
+		return Filter.filter(b, a, x);
+	}
+
     /**
-     * Apply a Pre-Emphasis Filter toa signal/data series
+     * Apply a Pre-Emphasis Filter to a signal/data series
      *
      * @param x the signal or data series to be filtered
      *
      * @return the filtered data
      */
     public static float[] preEmphasis(float[] x) {
-        double[] a = {1.0, -0.63};
+        double[] a = {1.0, 0.63};
         double[] b = {1.0};
         return Filter.filter(b, a, x);
     }
 
     /**
-     * Apply a Pre-Emphasis Filter toa signal/data series
+     * Apply a Pre-Emphasis Filter to a signal/data series
      *
      * @param x the signal or data series to be filtered
      *
      * @return the filtered data
      */
     public static double[] preEmphasis(double[] x) {
-        double[] a = {1.0, -0.63};
+        double[] a = {1.0, 0.63};
         double[] b = {1.0};
         return Filter.filter(b, a, x);
     }

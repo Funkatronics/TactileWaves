@@ -60,6 +60,10 @@ import java.util.Arrays;
 
 /**
  * Class that contains several utility methods such as sorting or averaging arrays
+ * <p>
+ *     These methods will more than likely be refactored into more specific classes in the near
+ *     future.
+ * </p>
  *
  * @author Marco Martinez
  */
@@ -71,38 +75,77 @@ public class Utilities {
     // Do not allow instantiation
     private Utilities(){}
 
-    public static double[] ansiBands(int N, int chan) {
-        double[] fi = new double[chan];
+	/**
+	 * Returns the center frequencies of the Octave-Band and Fractional-Octave-Band filter
+	 * frequencies according to the
+	 * <a href="https://law.resource.org/pub/us/cfr/ibr/002/ansi.s1.11.2004.pdf">
+	 *     ANSI Specification
+	 * </a>.
+	 *
+	 * @param N the fractional octave band to compute, i.e. 3 for 1/3 octave bands
+	 * @param bands the number of filter bands to compute
+	 *
+	 * @return an array containing the center frequency of each 1/N octave band
+	 */
+    public static double[] ansiBands(int N, int bands) {
+        double[] fi = new double[bands];
         double b = (double) 1/N;
-        for(int j = 0; j < chan; j++) {
-            int i = j - chan/3;
+        for(int j = 0; j < bands; j++) {
+            int i = j - bands/3;
             if(N%2 == 0) fi[j] = 1000.0 * Math.pow(2.0, ((i+1)*b)/2.0);
             else fi[j] = 1000.0 * Math.pow(2.0, i*b);
         }
         return fi;
     }
 
-    public static double[] ansiBandLimits(int N, int chan) {
-        chan++;
-        double[] fi = new double[chan];
+	/**
+	 * Returns the band limit frequencies of the Octave-Band and Fractional-Octave-Band filter
+	 * frequencies according to the
+	 * <a href="https://law.resource.org/pub/us/cfr/ibr/002/ansi.s1.11.2004.pdf">
+	 *     ANSI Specification
+	 * </a>.
+	 *
+	 * @param N the fractional octave band to compute, i.e. 3 for 1/3 octave bands
+	 * @param bands the number of filter bands to compute
+	 *
+	 * @return an array of length bands+1 containing the upper and lower band limit frequency of
+	 * 		   each 1/N octave band
+	 */
+    public static double[] ansiBandLimits(int N, int bands) {
+        bands++;
+        double[] fi = new double[bands];
         double b = (double) 1/N;
-        for(int j = 0; j < chan; j++) {
-            int i = j - chan/3;
+        for(int j = 0; j < bands; j++) {
+            int i = j - bands/3;
             if(N%2 == 0) fi[j] = 710.0 * Math.pow(2.0, ((i+1)*b)/2.0);
             else fi[j] = 710.0 * Math.pow(2.0, i*b);
         }
         return fi;
     }
 
-    public static float max(float[] aData) {
+	/**
+	 * Find the maximum of an array
+	 *
+	 * @param data the array
+	 *
+	 * @return the maximum value in the array
+	 */
+	public static float max(float[] data) {
         float max = -Float.MAX_VALUE;
-        for (float value : aData) {
+        for (float value : data) {
             if (value > max) max = value;
         }
         return max;
     }
 
-    public static int maxLoc(float[] data) {
+	/**
+	 * Find the index location of the maximum value of an array
+	 *
+	 * @param data the array
+	 *
+	 * @return the index location of the maximum value in the array
+	 */
+	public static int maxLoc(float[] data) {
         float max = -Float.MAX_VALUE;
         int maxLoc = 0;
         for(int i = 0; i < data.length; i++) {
@@ -114,12 +157,27 @@ public class Utilities {
         return maxLoc;
     }
 
-    public static float avgArray(float[] data) {
+	/**
+	 * Find the average of an array
+	 *
+	 * @param data the array
+	 *
+	 * @return the average of all the values in the array
+	 */
+	public static float avgArray(float[] data) {
         float sum = 0;
         for (float value : data) sum += value;
         return sum/data.length;
     }
 
+	/**
+	 * Find the N highest peaks in an array
+	 *
+	 * @param data the array
+	 * @param numPeaks the number of peaks to find
+	 *
+	 * @return the highest peaks in the array, in descending order
+	 */
     public static int[] findHighestPeaks(float[] data, int numPeaks){
         int peaks[] = new int[numPeaks];
         Arrays.fill(peaks, -1);
@@ -139,6 +197,14 @@ public class Utilities {
         return peaks;
     }
 
+	/**
+	 * Find the N lowest peaks in an array
+	 *
+	 * @param data the array
+	 * @param numPeaks the number of peaks to find
+	 *
+	 * @return the lowest peaks in the array, in ascending order
+	 */
     public static int[] findLowestPeaks(float[] data, int numPeaks){
         int peaks[] = new int[numPeaks];
         float tempArray[] = new float[data.length];
@@ -156,6 +222,14 @@ public class Utilities {
         return peaks;
     }
 
+	/**
+	 * Find the first N peaks in an array
+	 *
+	 * @param data the array
+	 * @param numPeaks the number of peaks to find
+	 *
+	 * @return the first peaks in the array, in the order they appear
+	 */
     public static int[] findOrderedPeaks(float[] data, int numPeaks) {
         int peaks[] = new int[numPeaks];
         Arrays.fill(peaks, 0);
@@ -170,7 +244,12 @@ public class Utilities {
         return peaks;
     }
 
-    public static boolean isAndroid(){
+	/**
+	 * Are we currently running on Android, or regular Java?
+	 *
+	 * @return true if app is running on DVM (Android) and false if running on JVM (Java)
+	 */
+	public static boolean isAndroid(){
         return System.getProperty("java.vendor").equals("The Android Project");
     }
 }

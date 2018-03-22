@@ -141,7 +141,7 @@ public class MFCC {
             for(int k = f[m-1]; k <= f[m]; k++) fb[m-1] += X[k] * (k - f[m-1])/(f[m] - f[m-1]);
             for(int k = f[m]; k <= f[m+1]; k++) fb[m-1] += X[k] * (f[m+1] - k)/(f[m+1] - f[m]);
             //fb[m-1] = 20.0 * Math.log10(fb[m-1]);
-            if(fb[m-1] < 1e-5) fb[m-1] = 1e-5;
+            if(fb[m-1] < 1e-5 || fb[m-1] != fb[m-1]) fb[m-1] = 1e-5;
             fb[m-1] = Math.log(fb[m-1]);
         }
 
@@ -194,7 +194,7 @@ public class MFCC {
         // Get Periodogram
         double[] X = FFT.PowerSpectrum(x);
 
-        // Initialize filter bank
+        // Initialize filters
         int[] f = initFilterBanks(Nfilt, minF, maxF, X.length, Fs);
 
         // Compute filter bank
@@ -203,7 +203,7 @@ public class MFCC {
             for(int k = f[m-1]; k <= f[m]; k++) fb[m-1] += X[k] * (k - f[m-1])/(f[m] - f[m-1]);
             for(int k = f[m]; k <= f[m+1]; k++) fb[m-1] += X[k] * (f[m+1] - k)/(f[m+1] - f[m]);
             //fb[m-1] = 20.0 * Math.log10(fb[m-1]);
-            if(fb[m-1] < 1e-5) fb[m-1] = 1e-5;
+            if(fb[m-1] < 1e-5 || fb[m-1] != fb[m-1]) fb[m-1] = 1e-5;
             fb[m-1] = Math.log(fb[m-1]);
         }
 

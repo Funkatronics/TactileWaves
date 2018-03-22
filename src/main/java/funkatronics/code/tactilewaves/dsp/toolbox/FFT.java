@@ -56,6 +56,8 @@
 
 package funkatronics.code.tactilewaves.dsp.toolbox;
 
+import java.util.Arrays;
+
 import funkatronics.code.tactilewaves.dsp.utilities.Complex;
 
 /**
@@ -187,9 +189,11 @@ public class FFT {
         // FFT
         fft(X, Y);
         for(int i = 0; i < N; i++){
-            X[i] = (X[i]*X[i] + Y[i]*Y[i])/N;
+            X[i] = (X[i]*X[i] + Y[i]*Y[i])/(N*N);
+			if(i > 0) X[i] *= 2;
         }
-        return X;
+        return Arrays.copyOf(X, N/2);
+		//return X;
     }
 
     /**
@@ -209,9 +213,11 @@ public class FFT {
         // FFT
         fft(X, Y);
         for(int i = 0; i < N; i++){
-            X[i] = (X[i]*X[i] + Y[i]*Y[i])/N;
+            X[i] = (X[i]*X[i] + Y[i]*Y[i])/(N*N);
+			if(i > 0) X[i] *= 2;
         }
-        return X;
+		return Arrays.copyOf(X, N/2);
+		//return X;
     }
 
     /**
@@ -231,9 +237,11 @@ public class FFT {
         // FFT
         fft(X, Y);
         for(int i = 0; i < N; i++){
-            X[i] = (float) Math.sqrt(X[i]*X[i] + Y[i]*Y[i])/N;
+            X[i] = (float)Math.sqrt(X[i]*X[i] + Y[i]*Y[i])/N;
+            if(i > 0) X[i] *= 2;
         }
-        return X;
+		return Arrays.copyOf(X, N/2);
+		//return X;
     }
 
     /**
@@ -254,8 +262,10 @@ public class FFT {
         fft(X, Y);
         for(int i = 0; i < N; i++){
             X[i] = Math.sqrt(X[i]*X[i] + Y[i]*Y[i])/N;
+			if(i > 0) X[i] *= 2;
         }
-        return X;
+		return Arrays.copyOf(X, N/2);
+		//return X;
     }
 
     /**
