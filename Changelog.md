@@ -15,12 +15,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 get back to 2 sided versions
 - FormantExtractor now takes number of formants to extract as a constructor argument (before it was 
 hardcoded to 3, now it will default to 4 if not specified)
+- FormantExtractor now ony returns valid formants (frequency > 90 Hz, bandwidth < 400 Hz)
 - index.html was changed to add a few small tweaks to the web page
 
 ### Fixed 
 - MFCC returning NaN's if filter bank was setup with too many filters, or if the minimum frequency 
 is set too low.
 - fixed an error in Filters recursive filter calculation
+- fixed an error in FFT's Power spectrum calculation - previously was dividing by N instead of N^2
 
 ## 1.0.0 - 2018-03-09
 ### Added
