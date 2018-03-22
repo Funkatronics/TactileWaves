@@ -56,6 +56,9 @@
 
 package funkatronics.code.tactilewaves.dsp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import funkatronics.code.tactilewaves.dsp.toolbox.LPC;
 
 /**
@@ -66,12 +69,43 @@ import funkatronics.code.tactilewaves.dsp.toolbox.LPC;
 
 public class FormantExtractor implements WaveProcessor {
 
+	// The number of formants to estimate
+	private int mNumFormants;
+
+	/**
+	 * Construct a new {@code FormantExtractor} with the default number of formants (4)
+	 */
+	public FormantExtractor() {
+		// Use default number of formants = 4
+		mNumFormants = 4;
+	}
+
+	/** Construct a new {@code FormantExtractor}
+	 *
+	 * @param numFormants the number of formants to estimate (note: you may want to set this a bit
+	 *                       higher than the actual number of formants you wish to estimate, e.g. if
+	 *                       you want the first 3 formants, you may get more accurate results by
+	 *                       requesting 4-6 formants from the {@code FormantExtractor})
+	 */
+	public FormantExtractor(int numFormants) {
+		mNumFormants = numFormants;
+	}
 
     public boolean process(WaveFrame frame) {
-        double[][] formants = LPC.estimateFormants(frame.getSamples(), 3, frame.getSampleRate());
-        float[] formFreqs = new float[formants.length];
-        for(int i = 0; i < formants.length; i++)
-            formFreqs[i] = (float)formants[i][0];
+    	// Get list of formant (frequency, bandwidth) pairs
+        double[][] formants = LPC.estimateFormants(frame.getSamples(), mNumFormants, frame.getSampleRate());
+        // Prune the formant list for valid formants
+        List<Float> formList = new ArrayList<Float>();
+        for(int i = 0; i < formants.length; i++) {
+        	// Valid formants have frequency > 90 Hz and a bandwidth < 400 Hz
+            if(formants[i][0] > 90 && formants[i][1] < 400)
+            	formList.add((float) formants[i][0]);
+        }
+        // Copy list of formants back to a feature vector (float array)
+		float[] formFreqs = new float[formList.size()];
+        for(int i = 0; i < formFreqs.length; i++)
+        	formFreqs[i] = formList.get(i);
+        // Add the feature vector of valid formants to the frame
         frame.addFeature("Formants", formFreqs);
         return true;
     }

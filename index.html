@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Tactile Waves Web Page</title>
+    <title>Tactile Waves</title>
   	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, initial-scale=1">
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -247,7 +247,7 @@
 <div id="start" class="container-fluid text-left">
 	<h2>Getting Started with Tactile Waves</h2>
 	<hr>
-	<p>Tactile Waves provides a system for handling audio recording, buffering, windowing and processing in a few easy to use objects within the tactilewaves.dsp package.</p>
+	<p>Tactile Waves provides a system for handling audio recording, buffering, windowing and processing in a few easy to use objects within the <code>tactilewaves.dsp</code> package.</p>
     <h3>WaveManager</h3>
 	<p>The <code>WaveManager</code> object represents the core of Tactile Waves' audio engine. It reads audio samples from a <code>WaveInputStream</code>, and generates a <code>WaveFrame</code> for each frame of audio acquired. Each <code>WaveFrame</code> is passed through a chain of <code>WaveProcessor</code> objects that perform some useful processing on the frame, and optionally store extracted audio features in the frame's feature set. Processed frames are then sent to any <code>WaveListener</code> objects that have been added to the <code>WaveManager</code>. These listeners can be used to trigger UI updates, or send extracted audio features to sensory substitution hardware.</p>
     <h3>WaveInputStream</h3>
@@ -319,33 +319,33 @@
 	<h2>CONTACT</h2>
 	<hr>
   	<div class="row">
-    		<div class="col-sm-5">
-      			<p>Drop me a note:</p>
-      			<p><span class="glyphicon glyphicon-map-marker"></span> Fort Collins, US</p>
-      			<p><span class="glyphicon glyphicon-envelope"></span> funkatronicsmail@gmail.com</p>
-    		</div>
-    		<div class="col-sm-7 slideanim">
-        		<form action="https://formspree.io/funkatronicsmail@gmail.com" method="POST">
-					<input type="hidden" name="_subject" value="New Contact from Tactile Waves Web Page" />
-					<input type="hidden" name="_format" value="plain" />
-					<input type="hidden" name="_next" value="//Funkatronics.github.io/TactileWaves/web/thankyou.html" />
-      				<div class="row">
-        				<div class="col-sm-6 form-group">
-      						<input class="form-control" name="name" placeholder="Name" type="text" required autofocus />
-        				</div>
-        				<div class="col-sm-6 form-group">
-          					<input class="form-control" name="email" placeholder="Email" type="email" required />
-        				</div>
-      				</div>
-					<textarea class="form-control" name="comments" placeholder="Comment" rows="5" required ></textarea>
-					<br>
-      				<div class="row">
-        				<div class="col-sm-12 form-group">
-                        	<input class="btn btn-default pull-right" type="submit" value="Send">
-        				</div>
-      				</div>
-            		</form>
-    		</div>
+		<div class="col-sm-5">
+			<p>Drop me a note:</p>
+			<p><span class="glyphicon glyphicon-map-marker"></span> Fort Collins, US</p>
+      		<p><span class="glyphicon glyphicon-envelope"></span> funkatronicsmail@gmail.com</p>
+		</div>
+		<div class="col-sm-7 slideanim">
+			<form action="https://formspree.io/funkatronicsmail@gmail.com" method="POST">
+				<input type="hidden" name="_subject" value="New Contact from Tactile Waves Web Page" />
+				<input type="hidden" name="_format" value="plain" />
+				<input type="hidden" name="_next" value="//Funkatronics.github.io/TactileWaves/web/thankyou.html" />
+				<div class="row">
+					<div class="col-sm-6 form-group">
+						<input class="form-control" name="name" placeholder="Name" type="text" required autofocus />
+					</div>
+					<div class="col-sm-6 form-group">
+						<input class="form-control" name="email" placeholder="Email" type="email" required />
+					</div>
+				</div>
+				<textarea class="form-control" name="comments" placeholder="Comment" rows="5" required ></textarea>
+				<br>
+				<div class="row">
+					<div class="col-sm-12 form-group">
+						<input class="btn btn-default pull-right" type="submit" value="Send">
+					</div>
+				</div>
+			</form>
+		</div>
   	</div>
 </div>
 
