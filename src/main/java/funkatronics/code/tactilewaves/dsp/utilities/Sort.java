@@ -83,36 +83,31 @@ public class Sort {
         if(p < r) {
             int q = (p + r) / 2;
             int[] temp = Arrays.copyOfRange(toSort, p, r + 1);
-            float[] tempf = Arrays.copyOfRange(sortBy, p, r + 1);
-            mergeSort(toSort, temp, sortBy, tempf, p, q);
-            mergeSort(toSort, temp, sortBy, tempf, q + 1, r);
-            merge(temp, toSort, tempf, sortBy, p, q, r);
+            mergeSort(toSort, temp, sortBy, p, q);
+            mergeSort(toSort, temp, sortBy, q + 1, r);
+            merge(temp, toSort, sortBy, p, q, r);
         }
     }
 
-    private static void mergeSort(int[] toSort, int[] temp, float[] sortBy, float[] tempf, int p, int r){
+    private static void mergeSort(int[] toSort, int[] temp, float[] sortBy, int p, int r){
         if(p < r) {
             int q = (p + r) / 2;
-            mergeSort(temp, toSort, tempf, sortBy, p, q);
-            mergeSort(temp, toSort, tempf, sortBy,q+1, r);
-            merge(toSort, temp, sortBy, tempf, p, q, r);
+            mergeSort(temp, toSort, sortBy, p, q);
+            mergeSort(temp, toSort, sortBy,q+1, r);
+            merge(toSort, temp, sortBy, p, q, r);
         }
     }
 
-    private static void merge(int[] toSort, int[] temp, float[] sortBy, float[] tempf, int p, int q, int r) {
+    private static void merge(int[] toSort, int[] temp, float[] sortBy, int p, int q, int r) {
         int k = p;
         int L = p;
         int R = q+1;
         while(L <= q && R <= r) {
-            //if(sortBy[R] > sortBy[L])
-            temp[k] = sortBy[R] < sortBy[L] ? toSort[R] : toSort[L];
-            tempf[k++] = sortBy[R] < sortBy[L] ? sortBy[R++] : sortBy[L++];
+			temp[k++] = sortBy[toSort[R]] < sortBy[toSort[L]] ? toSort[R++] : toSort[L++];
         }
 
         System.arraycopy(toSort, L, temp, k, q-L+1);
-        System.arraycopy(sortBy, L, tempf, k, q-L+1);
 
         System.arraycopy(toSort, R, temp, k, r-R+1);
-        System.arraycopy(sortBy, R, tempf, k, r-R+1);
     }
 }

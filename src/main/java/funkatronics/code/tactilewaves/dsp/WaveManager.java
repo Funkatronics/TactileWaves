@@ -62,7 +62,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import funkatronics.code.tactilewaves.dsp.toolbox.Window;
 import funkatronics.code.tactilewaves.io.WaveFormat;
 import funkatronics.code.tactilewaves.io.WaveInputStream;
 
@@ -89,9 +88,6 @@ public class WaveManager implements Runnable{
 
     // Input stream to read audio from
     private WaveInputStream mInput;
-
-    // Window object to window audio frames
-    private Window mWindow;
 
     // The format of the audio being processed
     private WaveFormat mFormat;
@@ -131,7 +127,6 @@ public class WaveManager implements Runnable{
         mFramesProcessed = 0;
         mTotalSamplesRead = 0;
         mRunning = false;
-        mWindow = new Window(Window.WINDOW_RECTANGULAR);
         mSamples = new float[frameLength];
         mFXChain = new LinkedList<>();
         mListeners = new ArrayList<>();
@@ -221,7 +216,7 @@ public class WaveManager implements Runnable{
             WaveFrame frame = new WaveFrame(mFormat);
             try {
                 samplesRead = readNextFrame();
-                frame.updateFrame(mWindow.window(mSamples));
+                frame.updateFrame(mSamples);
             } catch (IOException e) {
                 throw new Error(e);
             }
@@ -242,7 +237,7 @@ public class WaveManager implements Runnable{
     private int readNextFrame() throws IOException {
         // If this is Not the first frame, shift overlapping samples
         if(mTotalSamplesRead != 0) {
-            System.arraycopy(mSamples, mOverlap, mSamples, 0, mOverlap);
+            System.arraycopy(mSamples, mLength - mOverlap, mSamples, 0, mOverlap);
         }
 
         int samplesRead = 0;

@@ -79,14 +79,13 @@ public class Cepstrum {
     private Cepstrum() {}
 
     /**
-     * Compute the Real Cepstrum of a signal in-place
+     * Compute the real Cepstrum of a signal in-place
      *
      * @param x the signal to process
      */
     public static void rCepstrum(float[] x) {
-        float[] ImX = new float[x.length];
-
-        FFT.fft(x, ImX);
+        // Real FFT
+        float[] ImX = FFT.fft(x);
 
         for(int i = 0; i < x.length; i++) {
             x[i] = (float) Math.log(Math.sqrt(x[i]*x[i] + ImX[i]*ImX[i]));
@@ -97,20 +96,40 @@ public class Cepstrum {
     }
 
     /**
-     * Compute the Complex Cepstrum of a signal in-place
+     * Compute the power Cepstrum of a signal in-place
      *
      * @param x the signal to process
      */
-    public static void cCepstrum(float[] x) {
-        float[] ImX = new float[x.length];
-        Arrays.fill(ImX, 0.0f);
-
-        FFT.fft(x, ImX);
+    public static void pCepstrum(float[] x) {
+        // Real FFT
+        float[] ImX = FFT.fft(x);
 
         for(int i = 0; i < x.length; i++) {
+            x[i] = (float) Math.log(x[i]*x[i] + ImX[i]*ImX[i]);
+            ImX[i] = 0;
+        }
+
+        FFT.ifft(x, ImX);
+
+		for(int i = 0; i < x.length; i++) {
+			x[i] = x[i]*x[i];
+		}
+    }
+
+    /**
+     * Compute the complex cepstrum of a signal in-place
+     *
+     * @param x the signal to process
+	 *
+	 * @return the imaginary part of the cepstrum
+     */
+    public static int cCepstrum(float[] x) {
+        float[] ImX = FFT.fft(x);
+
+		for(int i = 0; i < x.length; i++) {
             float temp = x[i];
-            x[i] = (float) (Math.log(Math.sqrt(x[i]*x[i] + ImX[i]*ImX[i])));
-            ImX[i] = (float) (Math.atan2(ImX[i],temp));
+            x[i] = (float) Math.log(Math.sqrt(x[i]*x[i] + ImX[i]*ImX[i]));
+            ImX[i] = (float) Math.atan2(ImX[i],temp);
             // unwrap phase
             if(i > 0) {
                 if((ImX[i] - ImX[i-1]) >= Math.PI) {
@@ -120,10 +139,38 @@ public class Cepstrum {
                 }
             }
         }
-        rcUnwrap(ImX);
+        int nd = rcUnwrap(ImX);
 
         FFT.ifft(x, ImX);
+
+        return nd;
     }
+
+	/**
+	 * Compute the inverse complex cepstrum of a signal in-place
+	 *
+	 * @param x the real part of the cepstrum
+	 */
+	public static void icCepstrum(float[] x, int nd) {
+		float[] ImX = FFT.fft(x);
+
+		rcwrap(ImX, nd);
+		for(int i = 0; i < x.length; i++) {
+			// wrap phase
+			if(i > 0) {
+				if((ImX[i] - ImX[i-1]) >= Math.PI) {
+					ImX[i] += 2 * Math.PI;
+				} else if((ImX[i] - ImX[i-1]) <= -Math.PI) {
+					ImX[i] -= 2 * Math.PI;
+				}
+			}
+			double temp = Math.exp(x[i]);
+			x[i] = (float) (temp*Math.cos(ImX[i]));
+			ImX[i] = (float) (temp*Math.sin(ImX[i]));
+		}
+
+		FFT.ifft(x, ImX);
+	}
 
     /**
      * Estimate the pitch of an audio signal using Cepstral analysis and return it
@@ -134,12 +181,11 @@ public class Cepstrum {
      * @return the estimated pitch in Hz
      */
     public static float estimatePitch(float[] x, int Fs) {
-        Window.Hanning(x);
-        rCepstrum(x);
-        lifterLT(x, x.length/2);
-        lifterHT(x, 15);
-        int loc = Utilities.maxLoc(x);
-        if(x[loc] > 0.07f) return (float)Fs/loc;
+        float[] xc = Window.hamming(x);
+        rCepstrum(xc);
+        lifterHT(xc, Fs/500);
+        int loc = Utilities.findHighestPeaks(xc, 1)[0];
+        if(xc[loc] > 0.01f) return (float)Fs/loc;
         else return -1.0f;
     }
 
@@ -153,14 +199,13 @@ public class Cepstrum {
      * @return an array of estimated formant frequencies
      */
     public static float[] estimateFormants(float[] x, int FNum, int Fs) {
-        Window.Hanning(x);
-        rCepstrum(x);
-        lifterLT(x, 15);
-        float[] ImX = new float[x.length];
-        FFT.fft(x, ImX);
-        int[] locs = Utilities.findOrderedPeaks(x, FNum);
+		float[] xc = Window.hamming(x);
+        rCepstrum(xc);
+        lifterLT(xc, Fs/500);
+        FFT.fft(xc);
+        int[] locs = Utilities.findOrderedPeaks(xc, FNum);
         float[] formants = new float[FNum];
-        for(int i = 0; i < FNum; i++) formants[i] = locs[i]*Fs/x.length;
+        for(int i = 0; i < FNum; i++) formants[i] = locs[i]*((float)Fs/xc.length);
         return formants;
     }
 
@@ -170,12 +215,12 @@ public class Cepstrum {
      * "Low-Time Liftering" is similar to low-pass filtering in that slowly varying components of
      * the signal are kept while quickly varying content is attenuated</p>
      *
-     * @param X the Cepstrum to lifter
+     * @param c the Cepstrum to lifter
      * @param Lc the cuttoff length of the liftering window
      */
-    public static void lifterLT(float[] X, int Lc) {
-        for(int i = Lc; i < X.length; i++) {
-            X[i] = 0;
+    public static void lifterLT(float[] c, int Lc) {
+        for(int i = Lc; i < c.length; i++) {
+            c[i] = 0;
         }
     }
 
@@ -185,13 +230,14 @@ public class Cepstrum {
      * "High-Time Liftering" is similar to high-pass filtering in that quickly varying components of
      * the signal are kept while slowly varying content is attenuated</p>
      *
-     * @param X the Cepstrum to lifter
+     * @param c the Cepstrum to lifter
      * @param Lc the cuttoff length of the liftering window
      */
-    public static void lifterHT(float[] X, int Lc) {
-        for(int i = 0; i < Lc; i++) {
-            X[i] = 0;
-        }
+    public static void lifterHT(float[] c, int Lc) {
+        for(int i = 0; i < Lc; i++)
+            c[i] = 0;
+		for(int i = c.length/2; i < c.length; i++)
+			c[i] = 0;
     }
 
     /**
@@ -215,18 +261,29 @@ public class Cepstrum {
      * A special version of unwrap that subtracts a straight line from the phase. This method is
      * functionally identical to MatLab's rcunwrap(), a local function from MatLab's own cepstral
      * analysis package, <a href="https://www.mathworks.com/help/signal/ref/cceps.html">cceps</a>.
-     *
-     * @param X the signal to unwrap
      */
-    private static void rcUnwrap(float[] X) {
+    private static int rcUnwrap(float[] X) {
         int n = X.length;
-        unwrap(X); // unwrap the phase
         int nh = (n+1)/2;
         int idx = nh;
-        if(X.length == 1) idx = 0;
-        double nd = (X[idx]/Math.PI);
-        for(int i = 0; i < X.length; i++) {
-            X[i] = X[i] - (float) (Math.PI*nd*i/nh);
+        if(n== 1) idx = 0;
+        int nd = (int)Math.round(X[idx]/Math.PI);
+        for(int i = 0; i < n; i++) {
+            X[i] -= Math.PI*nd*i/nh;
         }
+        return nd;
     }
+
+	/**
+	 * A special version of wrap that adds a straight line to the phase. This method is
+	 * functionally identical to MatLab's rcwrap(), a local function from MatLab's own cepstral
+	 * analysis package, <a href="https://www.mathworks.com/help/signal/ref/icceps.html">icceps</a>.
+	 */
+	private static void rcwrap(float[] X, int nd) {
+		int n = X.length;
+		int nh = (n+1)/2;
+		for(int i = 0; i < n; i++) {
+			X[i] += Math.PI*nd*i/nh;
+		}
+	}
 }

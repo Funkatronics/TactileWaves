@@ -81,9 +81,9 @@ public class DCT {
         for(int k = 0; k < N; k++) {
             sum = 0.0;
             for (int n = 0; n < N; n++) {
-                sum += x[n] * Math.cos((2.0*(double)n + 1.0)*(double)k*Math.PI/(2.0*N));
+                sum += x[n]*Math.cos((2.0*(double)n + 1.0)*(double)k*Math.PI/(2.0*N));
             }
-            if(norm) y[k] = sum * Math.sqrt(2.0/(double)N);
+            if(norm) y[k] = sum*Math.sqrt(2.0/(double)N);
             else y[k] = sum;
         }
         if(norm) y[0] /= Math.sqrt(2.0);
@@ -91,19 +91,19 @@ public class DCT {
     }
 
     // Type-III DCT
-    private static double[] sIDCT(double[] x) {
+    private static double[] sIDCT(double[] x, boolean norm) {
         int N = x.length;
         double[] y = new double[N];
         double sum;
         for(int k = 0; k < N; k++) {
-            sum = 0.0;
-            for (int n = 0; n < N; n++) {
-                if(n == 0) sum += (x[n] / Math.sqrt(2.0)) * Math.cos((2.0*(double)k + 1.0)*(double)n*Math.PI/(2.0*N));
-                else sum += x[n] * Math.cos((2.0*(double)k + 1.0)*(double)n*Math.PI/(2.0*N));
+        	if(norm) sum = x[0]/Math.sqrt(2.0);
+            else sum = x[0]/2.0;
+            for (int n = 1; n < N; n++) {
+              sum += x[n]*Math.cos((2.0*(double)k + 1.0)*(double)n*Math.PI/(2.0*N));
             }
-            y[k] = sum * Math.sqrt(2.0/(double)N) ;
+            if(norm) y[k] = sum*Math.sqrt(2.0/(double)N);
+            else y[k] = sum;
         }
-//        y[0] /= Math.sqrt(2.0);
         return y;
     }
 
@@ -120,13 +120,13 @@ public class DCT {
             y[i] = x[i*2];
             y[N - i - 1] = x[i*2 + 1];
         }
+        y[N/2] = x[N - 1];
 
-        Arrays.fill(x, 0.0);
-        FFT.fft(y, x);
+        System.arraycopy(FFT.fft(y), 0, x, 0, N);
 
         for(int i = 0; i < N; i++) {
             double temp = i*Math.PI/(2.0*N);
-            x[i] = y[i] * Math.cos(temp) + x[i] * Math.sin(temp);
+            x[i] = y[i]*Math.cos(temp) + x[i]*Math.sin(temp);
             if(norm) x[i] *= Math.sqrt(2.0/N);
         }
         if(norm) x[0] /= Math.sqrt(2.0);
@@ -147,10 +147,10 @@ public class DCT {
             double temp = i*Math.PI/(2*N);
             y[i] = x[i] * Math.cos(temp);
             x[i] *= -Math.sin(temp);
-            if(i == 0 && norm) y[i] *= Math.sqrt(2.0);
+            if(i == 0 && norm) y[i] *= Math.sqrt(2);
         }
 
-        FFT.fft(y, x);
+        FFT.complexFFT(y, x);
 
         for(int i = 0; i < N/2; i++){
             x[i*2] = y[i];

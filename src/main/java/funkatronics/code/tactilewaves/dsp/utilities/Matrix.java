@@ -328,7 +328,7 @@ public class Matrix {
      * @param B the other Matrix
      * @return the result of A*B in a new Matrix
      */
-    public Matrix multiply(Matrix B) {
+    public Matrix times(Matrix B) {
         Matrix A = new Matrix(this, true);
         if (A.mCols != B.mRows) throw new IllegalArgumentException("Illegal matrix dimensions.");
         Matrix C = new Matrix(A.mRows, B.mCols);
@@ -345,7 +345,7 @@ public class Matrix {
      * @param x the array of values (vector)
      * @return the result of A*x in a new Matrix
      */
-    public double[] multiply(double[] x) {
+    public double[] times(double[] x) {
         Matrix A = new Matrix(this, true);
         if (A.mCols != x.length) throw new IllegalArgumentException("Illegal matrix dimensions.");
         //Matrix C = new Matrix(A.mRows, 1);
@@ -362,7 +362,7 @@ public class Matrix {
      * @param x the array of values (vector)
      * @return the result of A*x in a new Matrix
      */
-    public Matrix multiply(float[] x) {
+    public Matrix times(float[] x) {
         Matrix A = new Matrix(this, true);
         if (A.mCols != x.length) throw new IllegalArgumentException("Illegal matrix dimensions.");
         Matrix C = new Matrix(A.mRows, 1);
@@ -376,6 +376,7 @@ public class Matrix {
      * Solve X = A\B assuming A is square and has full rank
      *
      * @param B a Matrix with the same number of rows as this Matrix
+     *
      * @return a Matrix X that has the same number of rows as this Matrix and the same number of
      *         columns as B
      */
@@ -431,9 +432,10 @@ public class Matrix {
      * Solve x = A\b assuming A is square and has full rank
      *
      * @param b a vector with length equal to the number of rows in this Matrix
+     *
      * @return a vector x with length equal to the number of columns in this Matrix
      */
-    public double[] solve(double[] b) {
+    public double[] solve(float[] b) {
         if (mRows != mCols || b.length != mCols)
             throw new RuntimeException("Illegal matrix dimensions.");
 
@@ -449,7 +451,7 @@ public class Matrix {
                 if (Math.abs(A.get(j, i)) > Math.abs(A.get(max, i)))
                     max = j;
             A.swap(i, max);
-            double temp = b[i];
+            float temp = b[i];
             b[i] = b[max];
             b[max] = temp;
 
@@ -485,9 +487,10 @@ public class Matrix {
      * Solve x = A\b assuming A is square and has full rank
      *
      * @param b a vector with length equal to the number of rows in this Matrix
+     *
      * @return a vector x with length equal to the number of columns in this Matrix
      */
-    public double[] solve(float[] b) {
+    public double[] solve(double[] b) {
         if (mRows != mCols || b.length != mCols)
             throw new RuntimeException("Illegal matrix dimensions.");
 
@@ -503,7 +506,7 @@ public class Matrix {
                 if (Math.abs(A.get(j, i)) > Math.abs(A.get(max, i)))
                     max = j;
             A.swap(i, max);
-            float temp = b[i];
+            double temp = b[i];
             b[i] = b[max];
             b[max] = temp;
 

@@ -207,7 +207,7 @@ public class Complex {
     }
 
     /**
-     * Returns the Complex Exponential aof this Complex Number
+     * Returns the Complex Exponential of this Complex Number
      *
      * @return the Complex Exponential of this complex number
      *          <br> exp(z) = exp(x)*cos(y) + exp(x)*sin(y)i

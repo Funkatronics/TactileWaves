@@ -146,10 +146,9 @@ public class FFT {
     public static float[][] Spectrum(final float[] x) {
         int N = x.length;
         float[] X = new float[N];
-        float[] Y = new float[N];
         System.arraycopy(x, 0, X, 0, N);
-        // FFT
-        fft(X, Y);
+        // real FFT
+		float[] Y = fft(X);
         return new float[][]{X, Y};
     }
 
@@ -165,10 +164,9 @@ public class FFT {
     public static double[][] Spectrum(final double[] x) {
         int N = x.length;
         double[] X = new double[N];
-        double[] Y = new double[N];
         System.arraycopy(x, 0, X, 0, N);
-        // FFT
-        fft(X, Y);
+        // real FFT
+        double[] Y = fft(X);
         return new double[][]{X, Y};
     }
 
@@ -184,16 +182,14 @@ public class FFT {
     public static float[] PowerSpectrum(final float[] x) {
         int N = x.length;
         float[] X = new float[N];
-        float[] Y = new float[N];
         System.arraycopy(x, 0, X, 0, N);
-        // FFT
-        fft(X, Y);
-        for(int i = 0; i < N; i++){
+        // real FFT
+		float[] Y = fft(X);
+        for(int i = 0; i <= N/2; i++){
             X[i] = (X[i]*X[i] + Y[i]*Y[i])/(N*N);
-			if(i > 0) X[i] *= 2;
+			if(i > 0 && i < N/2) X[i] *= 2;
         }
-        return Arrays.copyOf(X, N/2);
-		//return X;
+        return Arrays.copyOf(X, N/2 + 1);
     }
 
     /**
@@ -208,16 +204,14 @@ public class FFT {
     public static double[] PowerSpectrum(final double[] x) {
         int N = x.length;
         double[] X = new double[N];
-        double[] Y = new double[N];
         System.arraycopy(x, 0, X, 0, N);
-        // FFT
-        fft(X, Y);
-        for(int i = 0; i < N; i++){
+        // real FFT
+		double[] Y = fft(X);
+        for(int i = 0; i <= N/2; i++){
             X[i] = (X[i]*X[i] + Y[i]*Y[i])/(N*N);
-			if(i > 0) X[i] *= 2;
+			if(i > 0 && i < N/2) X[i] *= 2;
         }
-		return Arrays.copyOf(X, N/2);
-		//return X;
+		return Arrays.copyOf(X, N/2 + 1);
     }
 
     /**
@@ -232,16 +226,14 @@ public class FFT {
     public static float[] MagnitudeSpectrum(final float[] x) {
         int N = x.length;
         float[] X = new float[N];
-        float[] Y = new float[N];
         System.arraycopy(x, 0, X, 0, N);
         // FFT
-        fft(X, Y);
-        for(int i = 0; i < N; i++){
+		float[] Y = fft(X);
+        for(int i = 0; i <= N/2; i++){
             X[i] = (float)Math.sqrt(X[i]*X[i] + Y[i]*Y[i])/N;
-            if(i > 0) X[i] *= 2;
+            if(i > 0 && i < N/2) X[i] *= 2;
         }
-		return Arrays.copyOf(X, N/2);
-		//return X;
+		return Arrays.copyOf(X, N/2 + 1);
     }
 
     /**
@@ -256,103 +248,383 @@ public class FFT {
     public static double[] MagnitudeSpectrum(final double[] x) {
         int N = x.length;
         double[] X = new double[N];
-        double[] Y = new double[N];
         System.arraycopy(x, 0, X, 0, N);
         // FFT
-        fft(X, Y);
-        for(int i = 0; i < N; i++){
+		double[] Y = fft(X);
+        for(int i = 0; i <= N/2; i++){
             X[i] = Math.sqrt(X[i]*X[i] + Y[i]*Y[i])/N;
-			if(i > 0) X[i] *= 2;
+			if(i > 0 && i < N/2) X[i] *= 2;
         }
-		return Arrays.copyOf(X, N/2);
-		//return X;
+		return Arrays.copyOf(X, N/2 + 1);
     }
 
+	/**
+	 * Returns the real DFT of a signal using the real FFT.
+	 * The real signal must be represented by a single array.
+	 *
+	 * @param  ReX the real signal
+	 *
+	 * @return the imaginary part of the transform
+	 */
+	public static float[] fft(float[] ReX){
+		int N = ReX.length;
+		if ((N&(N-1)) != 0) {
+			float[] ImX = new float[N];
+			bluestein(ReX, ImX, N);
+			return ImX;
+		}
+
+		//float[] ReT = new float[N/2];
+		float[] ImX = new float[N];
+		for(int i = 0; i < N/2; i++) {
+			ReX[i] = ReX[2 * i];
+			ImX[i] = ReX[2 * i + 1];
+		}
+
+		complexFFT(ReX, ImX, N/2);
+
+		// Even/Odd Frequency Decomposition
+		int ND2 = N/2;
+		for(int i = 1; i < N/4; i++) {
+			int IM = ND2 - i;
+			int IP2 = i + ND2;
+			int IPM = IM + ND2;
+			ReX[IP2] = (ImX[i] + ImX[IM])/2;
+			ReX[IPM] = ReX[IP2];
+			ImX[IP2] = -(ReX[i] - ReX[IM])/2;
+			ImX[IPM] = -ImX[IP2];
+			ReX[i] = (ReX[i] + ReX[IM])/2;
+			ReX[IM] = ReX[i];
+			ImX[i] = -(ImX[i] - ImX[IM])/2;
+			ImX[IM] = -ImX[i];
+		}
+		ReX[N*3/4] = ImX[N/4];
+		ReX[ND2] = ImX[0];
+		ImX[N*3/4] = 0;
+		ImX[ND2] = 0;
+		ImX[N/4] = 0;
+		ImX[0] = 0;
+
+		int LE = Integer.highestOneBit(N), LE2 = LE/2;
+		float SR, SI;
+		float TR, TI;
+		float UR = 1, UI = 0;
+		// Calculate Sine and Cosine Values
+		SR = (float) Math.cos(Math.PI/LE2);
+		SI = (float)-Math.sin(Math.PI/LE2);
+		// Loop for each Sub-DFT
+		for(int j = 0; j < LE2; j++) {
+			// Loop for each Butterfly
+			for (int i = j; i < N; i += LE) {
+				int IP = i + LE2;
+				// Butterfly Calculation
+				TR = ReX[IP] * UR - ImX[IP] * UI;
+				TI = ReX[IP] * UI + ImX[IP] * UR;
+				ReX[IP] = ReX[i] - TR;
+				ImX[IP] = -ImX[i] - TI;
+				ReX[i] = ReX[i] + TR;
+				ImX[i] = -ImX[i] + TI;
+			}
+			TR = UR;
+			UR = TR * SR - UI * SI;
+			UI = TR * SI + UI * SR;
+		}
+
+		return ImX;
+	}
+
+	/**
+	 * Returns the real DFT of a signal using the real FFT.
+	 * The real signal must be represented by a single array.
+	 *
+	 * @param  ReX the real signal
+	 *
+	 * @return the imaginary part of the transform
+	 */
+	public static double[] fft(double[] ReX){
+		int N = ReX.length;
+		if ((N&(N-1)) != 0) {
+			double[] ImX = new double[N];
+			bluestein(ReX, ImX, N);
+			return ImX;
+		}
+
+		double[] ImX = new double[N];
+		for(int i = 0; i < N/2; i++) {
+			ReX[i] = ReX[2 * i];
+			ImX[i] = ReX[2 * i + 1];
+		}
+
+		complexFFT(ReX, ImX, N/2);
+
+		// Even/Odd Frequency Decomposition
+		int ND2 = N/2;
+		for(int i = 1; i < N/4; i++) {
+			int IM = ND2 - i;
+			int IP2 = i + ND2;
+			int IPM = IM + ND2;
+			ReX[IP2] = (ImX[i] + ImX[IM])/2;
+			ReX[IPM] = ReX[IP2];
+			ImX[IP2] = -(ReX[i] - ReX[IM])/2;
+			ImX[IPM] = -ImX[IP2];
+			ReX[i] = (ReX[i] + ReX[IM])/2;
+			ReX[IM] = ReX[i];
+			ImX[i] = -(ImX[i] - ImX[IM])/2;
+			ImX[IM] = -ImX[i];
+		}
+		ReX[N*3/4] = ImX[N/4];
+		ReX[ND2] = ImX[0];
+		ImX[N*3/4] = 0;
+		ImX[ND2] = 0;
+		ImX[N/4] = 0;
+		ImX[0] = 0;
+
+		int LE = Integer.highestOneBit(N), LE2 = LE/2;
+		double SR, SI;
+		double TR, TI;
+		double UR = 1, UI = 0;
+		// Calculate Sine and Cosine Values
+		SR = (float) Math.cos(Math.PI/LE2);
+		SI = (float)-Math.sin(Math.PI/LE2);
+		// Loop for each Sub-DFT
+		for(int j = 0; j < LE2; j++) {
+			// Loop for each Butterfly
+			for (int i = j; i < N; i += LE) {
+				int IP = i + LE2;
+				// Butterfly Calculation
+				TR = ReX[IP] * UR - ImX[IP] * UI;
+				TI = ReX[IP] * UI + ImX[IP] * UR;
+				ReX[IP] = ReX[i] - TR;
+				ImX[IP] = -ImX[i] - TI;
+				ReX[i] = ReX[i] + TR;
+				ImX[i] = -ImX[i] + TI;
+			}
+			TR = UR;
+			UR = TR * SR - UI * SI;
+			UI = TR * SI + UI * SR;
+		}
+
+		return ImX;
+	}
+
+	/**
+	 * Returns the real inverse DFT of a signal using the real FFT.
+	 *
+	 * @param  ReX the real signal
+	 */
+	public static void ifft(float[] ReX, float[] ImX){
+		int N = ReX.length;
+
+		for(int k = N/2; k < N; k++) {
+			ReX[k] = ReX[N - k];
+			ImX[k] = -ImX[N - k];
+		}
+
+		for(int k = 0; k < N; k++) {
+			ReX[k] = ReX[k] + ImX[k];
+			ImX[k] = 0;
+		}
+
+		ImX = fft(ReX);
+
+		for(int i = 0; i < N; i++) {
+			ReX[i] = (ReX[i] + ImX[i])/N;
+		}
+	}
+
+	/**
+	 * Returns the real inverse DFT of a signal using the real FFT.
+	 *
+	 * @param  ReX the real signal
+	 */
+	public static void ifft(double[] ReX, double[] ImX){
+		int N = ReX.length;
+
+		for(int k = N/2; k < N; k++) {
+			ReX[k] = ReX[N - k];
+			ImX[k] = -ImX[N - k];
+		}
+
+		for(int k = 0; k < N; k++) {
+			ReX[k] = ReX[k] + ImX[k];
+			ImX[k] = 0;
+		}
+
+		ImX = fft(ReX);
+
+		for(int i = 0; i < N; i++) {
+			ReX[i] = (ReX[i] + ImX[i])/N;
+		}
+	}
+
     /**
-     * Performs the FFT on a signal.
+     * Returns the complex DFT of a signal using the complex FFT.
      * The signal must be represented by a real and imaginary array of equal length.
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
+	 *
      * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
      */
-    public static void fft(float[] ReX, float[] ImX){
-        int N = ReX.length;
-        if (N != ImX.length)
-            throw new IllegalArgumentException("Real and Imaginary arrays must be identical length!");
-        if ((N&(N-1)) != 0) {
-            bluestein(ReX, ImX);
-            return;
-        }
-        int M = (int)(Math.log(N)/Math.log(2));
-        int ND2 = N/2;
-        int J = ND2;
-        float TR;
-        float TI;
-
-        // Bit Reversal Sorting
-        for(int i = 1; i < N-1; i++){
-            if(i < J){
-                TR = ReX[J];
-                TI = ImX[J];
-                ReX[J] = ReX[i];
-                ImX[J] = ImX[i];
-                ReX[i] = TR;
-                ImX[i] = TI;
-            }
-            int k = ND2;
-            while(k <= J){
-                J -= k;
-                k /= 2;
-            }
-            J += k;
-        }
-
-        int N1; int N2 = 1;
-        float SR; float SI;
-        float UR; float UI;
-        for(int i = 0; i < M; i++){
-            N1 = N2;
-            N2 = N2 + N2;
-            UR = 1;
-            UI = 0;
-            // Calculate Sine and Cosine Values
-            SR = (float) Math.cos(Math.PI/N1);
-            SI = (float) -Math.sin(Math.PI/N1);
-            // Loop for each Sub-DFT
-            for(int j = 0; j < N1; j++){
-                // Loop for each Butterfly
-                for(int k = j; k < N; k+=N2){
-                    int IP = k + N1;
-                    // Butterfly Calculation
-                    TR = ReX[IP]*UR - ImX[IP]*UI;
-                    TI = ReX[IP]*UI + ImX[IP]*UR;
-                    ReX[IP] = (ReX[k] - TR);
-                    ImX[IP] = (ImX[k] - TI);
-                    ReX[k] = (ReX[k] + TR);
-                    ImX[k] = (ImX[k] + TI);
-                }
-                TR = UR;
-                UR = TR*SR - UI*SI;
-                UI = TR*SI + UI*SR;
-            }
-        }
+    public static void complexFFT(float[] ReX, float[] ImX){
+        complexFFT(ReX, ImX, ReX.length);
     }
 
+	/**
+	 * Returns the complex DFT of a signal using the complex FFT.
+	 * The signal must be represented by a real and imaginary array of equal length.
+	 *
+	 * @param  ReX the real array
+	 * @param  ImX the imaginary array
+	 *
+	 * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
+	 */
+	public static void complexFFT(double[] ReX, double[] ImX){
+		complexFFT(ReX, ImX, ReX.length);
+	}
+
+	/**
+	 * Returns the complex DFT of the specified complex array using the complex FFT.
+	 *
+	 * @param x the {@link Complex} array
+	 */
+	public static void complexFFT(Complex[] x) {
+		int N = x.length;
+		if ((N&(N-1)) != 0) {
+			bluestein(x, N);
+			return;
+		}
+		int M = (int)(Math.log(N)/Math.log(2));
+		int ND2 = N/2;
+		int J = ND2;
+		Complex T = Complex.UNITY();
+
+		// Bit Reversal Sorting
+		for(int i = 1; i < N-1; i++){
+			if(i < J){
+				T = x[J];
+				x[J] = x[i];
+				x[i] = T;
+			}
+			int k = ND2;
+			while(k <= J){
+				J -= k;
+				k /= 2;
+			}
+			J += k;
+		}
+
+		int N1; int N2 = 1;
+		Complex S; Complex U;
+		for(int i = 0; i < M; i++){
+			N1 = N2;
+			N2 = N2 + N2;
+			U = new Complex(1, 0);
+			// Calculate Sine and Cosine Values
+			S = new Complex(Math.cos(Math.PI/N1), -Math.sin(Math.PI/N1));
+			// Loop for each Sub-DFT
+			for(int j = 0; j < N1; j++){
+				// Loop for each Butterfly
+				for(int k = j; k < N; k+=N2){
+					int IP = k + N1;
+					// Butterfly Calculation
+					T = x[IP].times(U);
+					x[IP] = x[k].minus(T);
+					x[k] = x[k].plus(T);
+				}
+				T = new Complex(U.real(), T.imag());
+				U = U.times(S);
+			}
+		}
+	}
+
+	/**
+	 * Returns the complex DFT of a signal using the complex FFT.
+	 * The signal must be represented by a real and imaginary array of equal length.
+	 *
+	 * @param ReX the real array
+	 * @param ImX the imaginary array
+	 * @param N the FFT length
+	 *
+	 * @throws IllegalArgumentException if the length of {@code ReX} or {@code ImX} is greater than N
+	 */
+	private static void complexFFT(float[] ReX, float[] ImX, int N){
+		if(N > ReX.length) ReX = Arrays.copyOf(ReX, N);
+		if(N > ImX.length) ImX = Arrays.copyOf(ImX, N);
+		if ((N&(N-1)) != 0) {
+			bluestein(ReX, ImX, N);
+			return;
+		}
+		int M = (int)(Math.log(N)/Math.log(2));
+		int ND2 = N/2;
+		int J = ND2;
+		float TR;
+		float TI;
+
+		// Bit Reversal Sorting
+		for(int i = 1; i < N-1; i++){
+			if(i < J){
+				TR = ReX[J];
+				TI = ImX[J];
+				ReX[J] = ReX[i];
+				ImX[J] = ImX[i];
+				ReX[i] = TR;
+				ImX[i] = TI;
+			}
+			int k = ND2;
+			while(k <= J){
+				J -= k;
+				k /= 2;
+			}
+			J += k;
+		}
+
+		int N1; int N2 = 1;
+		float SR; float SI;
+		float UR; float UI;
+		for(int i = 0; i < M; i++){
+			N1 = N2;
+			N2 = N2 + N2;
+			UR = 1;
+			UI = 0;
+			// Calculate Sine and Cosine Values
+			SR = (float) Math.cos(Math.PI/N1);
+			SI = (float) -Math.sin(Math.PI/N1);
+			// Loop for each Sub-DFT
+			for(int j = 0; j < N1; j++){
+				// Loop for each Butterfly
+				for(int k = j; k < N; k+=N2){
+					int IP = k + N1;
+					// Butterfly Calculation
+					TR = ReX[IP]*UR - ImX[IP]*UI;
+					TI = ReX[IP]*UI + ImX[IP]*UR;
+					ReX[IP] = (ReX[k] - TR);
+					ImX[IP] = (ImX[k] - TI);
+					ReX[k] = (ReX[k] + TR);
+					ImX[k] = (ImX[k] + TI);
+				}
+				TR = UR;
+				UR = TR*SR - UI*SI;
+				UI = TR*SI + UI*SR;
+			}
+		}
+	}
+
     /**
-     * Performs the FFT on a signal.
+     * Returns the complex DFT of a signal using the complex FFT.
      * The signal must be represented by a real and imaginary array of equal length.
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
-     * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
+	 * @param N the FFT length
+	 *
+	 * @throws IllegalArgumentException if the length of {@code ReX} or {@code ImX} is greater than N
      */
-    public static void fft(double[] ReX, double[] ImX){
-        int N = ReX.length;
-        if (N != ImX.length)
-            throw new IllegalArgumentException("Real and Imaginary arrays must be identical length!");
+    private static void complexFFT(double[] ReX, double[] ImX, int N){
+		if (N > ImX.length || N > ReX.length)
+			throw new IllegalArgumentException("Real and Imaginary array length must be less than N");
         if ((N&(N-1)) != 0) {
-            bluestein(ReX, ImX);
+            bluestein(ReX, ImX, N);
             return;
         }
         int M = (int)(Math.log(N)/Math.log(2));
@@ -411,120 +683,63 @@ public class FFT {
     }
 
     /**
-     * Returns the FFT of the specified complex array.
+     * Returns the inverse complex DFT of a signal using the complex FFT.
+     * The signal must be represented by a real and imaginary array of equal length.
+     *
+     * @param  ReX the real array
+     * @param  ImX the imaginary array
+     * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
+     */
+    public static void complexIFFT(float[] ReX, float[] ImX) {
+        complexFFT(ImX, ReX);
+        int N = ReX.length;
+        for(int i = 0; i < N; i++) {
+            ReX[i] /= N;
+            ImX[i] /= N;
+        }
+    }
+
+    /**
+     * Returns the inverse complex DFT of a signal using the complex FFT.
+     * The signal must be represented by a real and imaginary array of equal length.
+     *
+     * @param  ReX the real array
+     * @param  ImX the imaginary array
+     * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
+     */
+    public static void complexIFFT(double[] ReX, double[] ImX) {
+		int N = ReX.length;
+        complexFFT(ImX, ReX);
+        for(int i = 0; i < N; i++) {
+            ReX[i] /= N;
+            ImX[i] /= N;
+        }
+    }
+
+    /**
+     * Returns the inverse complex DFT of the specified complex array using the complex FFT.
      *
      * @param  x the complex array
      */
-    public static void fft(Complex[] x) {
+    public static void complexIFFT(Complex[] x) {
         int N = x.length;
-        if ((N&(N-1)) != 0) {
-            bluestein(x);
-            return;
-        }
-        int M = (int)(Math.log(N)/Math.log(2));
-        int ND2 = N/2;
-        int J = ND2;
-        Complex T = Complex.UNITY();
-
-        // Bit Reversal Sorting
-        for(int i = 1; i < N-1; i++){
-            if(i < J){
-                T = x[J];
-                x[J] = x[i];
-                x[i] = T;
-            }
-            int k = ND2;
-            while(k <= J){
-                J -= k;
-                k /= 2;
-            }
-            J += k;
-        }
-
-        int N1; int N2 = 1;
-        Complex S; Complex U;
-        for(int i = 0; i < M; i++){
-            N1 = N2;
-            N2 = N2 + N2;
-            U = new Complex(1, 0);
-            // Calculate Sine and Cosine Values
-            S = new Complex(Math.cos(Math.PI/N1), -Math.sin(Math.PI/N1));
-            // Loop for each Sub-DFT
-            for(int j = 0; j < N1; j++){
-                // Loop for each Butterfly
-                for(int k = j; k < N; k+=N2){
-                    int IP = k + N1;
-                    // Butterfly Calculation
-                    T = x[IP].times(U);
-                    x[IP] = x[k].minus(T);
-                    x[k] = x[k].plus(T);
-                }
-                T = new Complex(U.real(), T.imag());
-                U = U.times(S);
-            }
-        }
-    }
-
-    /**
-     * Performs the Inverse FFT of a signal.
-     * The signal must be represented by a real and imaginary array of equal length.
-     *
-     * @param  ReX the real array
-     * @param  ImX the imaginary array
-     * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
-     */
-    public static void ifft(float[] ReX, float[] ImX) {
-        fft(ImX, ReX);
-        int N = ReX.length;
-        for(int i = 0; i < N; i++) {
-            ReX[i] /= N;
-            ImX[i] /= N;
-        }
-    }
-
-    /**
-     * Performs the Inverse FFT of a signal.
-     * The signal must be represented by a real and imaginary array of equal length.
-     *
-     * @param  ReX the real array
-     * @param  ImX the imaginary array
-     * @throws IllegalArgumentException if the length of {@code ReX} is != to the length of {@code ImX}
-     */
-    public static void ifft(double[] ReX, double[] ImX) {
-        fft(ImX, ReX);
-        int N = ReX.length;
-        for(int i = 0; i < N; i++) {
-            ReX[i] /= N;
-            ImX[i] /= N;
-        }
-    }
-
-    /**
-     * Returns the inverse FFT of the specified complex array.
-     *
-     * @param  x the complex array
-     * @throws IllegalArgumentException if the length of {@code x} is not a power of 2
-     */
-    public static void ifft(Complex[] x) {
-        int n = x.length;
 
         // take conjugate
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < N; i++) {
             x[i] = x[i].conj();
         }
 
         // compute forward FFT
-        fft(x);
-
+        complexFFT(x);
         // take conjugate again
-        for (int i = 0; i < n; i++) {
-            x[i] = x[i].conj().times(1.0/n);
+        for (int i = 0; i < N; i++) {
+            x[i] = x[i].conj().times(1.0/N);
         }
     }
 
-    /**
+	/**
      * Performs the FFT on a signal.
-     * The signal must be represented by a 2-D array of the form {real, imaginary}.
+	 * The signal must be represented by a real and imaginary array of equal length.
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
@@ -539,13 +754,13 @@ public class FFT {
         float[] ImY = new float[N];
         System.arraycopy(ReX, 0 , ReY, 0, N);
         System.arraycopy(ImX, 0 , ImY, 0, N);
-        fft(ReY, ImY);
+        complexFFT(ReY, ImY);
         return new float[][]{ReY, ImY};
     }
 
     /**
      * Performs the FFT on a signal.
-     * The signal must be represented by a 2-D array of the form {real, imaginary}.
+	 * The signal must be represented by a real and imaginary array of equal length.
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
@@ -560,7 +775,7 @@ public class FFT {
         double[] ImY = new double[N];
         System.arraycopy(ReX, 0 , ReY, 0, N);
         System.arraycopy(ImX, 0 , ImY, 0, N);
-        fft(ReY, ImY);
+        complexFFT(ReY, ImY, N);
         return new double[][]{ReY, ImY};
     }
 
@@ -577,13 +792,13 @@ public class FFT {
         int N = x.length;
         Complex[] X = new Complex[N];
         System.arraycopy(x, 0 , X, 0, N);
-        fft(X);
+        complexFFT(X);
         return X;
     }
 
     /**
      * Performs the Inverse FFT on a signal.
-     * The signal must be represented by a 2-D array of the form {real, imaginary}.
+	 * The signal must be represented by a real and imaginary array of equal length.
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
@@ -598,13 +813,13 @@ public class FFT {
         float[] ImY = new float[N];
         System.arraycopy(ReX, 0 , ReY, 0, N);
         System.arraycopy(ImX, 0 , ImY, 0, N);
-        ifft(ReY, ImY);
+        complexIFFT(ReY, ImY);
         return new float[][]{ReY, ImY};
     }
 
     /**
      * Performs the Inverse FFT on a signal.
-     * The signal must be represented by a 2-D array of the form {real, imaginary}.
+	 * The signal must be represented by a real and imaginary array of equal length.
      *
      * @param  ReX the real array
      * @param  ImX the imaginary array
@@ -619,7 +834,7 @@ public class FFT {
         double[] ImY = new double[N];
         System.arraycopy(ReX, 0 , ReY, 0, N);
         System.arraycopy(ImX, 0 , ImY, 0, N);
-        ifft(ReY, ImY);
+        complexIFFT(ReY, ImY);
         return new double[][]{ReY, ImY};
     }
 
@@ -636,7 +851,7 @@ public class FFT {
         int N = x.length;
         Complex[] X = new Complex[N];
         System.arraycopy(x, 0 , X, 0, N);
-        ifft(X);
+        complexIFFT(X);
         return X;
 
     }
@@ -799,7 +1014,7 @@ public class FFT {
     public void LUfft(Complex[] x) {
         int N = x.length;
         if ((N&(N-1)) != 0) {
-            bluestein(x);
+            bluestein(x, N);
             return;
         }
         int M = (int)(Math.log(N)/Math.log(2));
@@ -920,19 +1135,17 @@ public class FFT {
      * @param  ReX real part of signal
      * @param  ImX imaginary part of signal
      *
-     * @throws IllegalArgumentException if the length of {@code ReX} does not equal
-     *         the length of {@code ImX}
+     * @throws IllegalArgumentException if the length of {@code ReX} or {@code ImX} is greater than N
      */
-    private static void bluestein(float[] ReX, float[] ImX) {
+    private static void bluestein(float[] ReX, float[] ImX, int N) {
         // Find a power-of-2 convolution length m such that m >= n * 2 + 1
-        int n = ReX.length;
-        if (n != ImX.length)
-            throw new IllegalArgumentException("Real and Imaginary arrays must be identical length!");
-        int m = Integer.highestOneBit(n) * 4;
+		if (N > ImX.length || N > ReX.length)
+			throw new IllegalArgumentException("Real and Imaginary array length must be less than N");
+        int m = Integer.highestOneBit(N) * 4;
 
         // Trignometric tables
-        float[] cos = new float[n];
-        float[] sin = new float[n];
+        float[] cos = new float[N];
+        float[] sin = new float[N];
 
         // Prepare A & B convolution arrays
         float[] ReA = new float[m];
@@ -942,10 +1155,10 @@ public class FFT {
 
         ReB[0] = 1;
         ImB[0] = 0;
-        for (int i = 0; i < n; i++) {
-            int j = (int)((long)i * i % (n * 2));  // More accurate than j = i * i
-            cos[i] = (float)Math.cos(Math.PI * j / n);
-            sin[i] = (float) Math.sin(Math.PI * j / n);
+        for (int i = 0; i < N; i++) {
+            int j = (int)((long)i * i % (N * 2));  // More accurate than j = i * i
+            cos[i] = (float)Math.cos(Math.PI * j / N);
+            sin[i] = (float) Math.sin(Math.PI * j / N);
 
             ReA[i] =  ReX[i] * cos[i] + ImX[i] * sin[i];
             ImA[i] = -ReX[i] * sin[i] + ImX[i] * cos[i];
@@ -960,7 +1173,7 @@ public class FFT {
         cconvolve(ReA, ImA, ReB, ImB);
 
         // Repack into X
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < N; i++) {
             ReX[i] =  ReA[i] * cos[i] + ImA[i] * sin[i];
             ImX[i] = -ReA[i] * sin[i] + ImA[i] * cos[i];
         }
@@ -974,19 +1187,17 @@ public class FFT {
      * @param  ReX real part of signal
      * @param  ImX imaginary part of signal
      *
-     * @throws IllegalArgumentException if the length of {@code ReX} does not equal
-     *         the length of {@code ImX}
+     * @throws IllegalArgumentException if the length of {@code ReX} or {@code ImX} is greater than N
      */
-    private static void bluestein(double[] ReX, double[] ImX) {
+    private static void bluestein(double[] ReX, double[] ImX, int N) {
         // Find a power-of-2 convolution length m such that m >= n * 2 + 1
-        int n = ReX.length;
-        if (n != ImX.length)
-            throw new IllegalArgumentException("Real and Imaginary arrays must be identical length!");
-        int m = Integer.highestOneBit(n) * 4;
+		if (N > ImX.length || N > ReX.length)
+			throw new IllegalArgumentException("Real and Imaginary array length must be less than N");
+        int m = Integer.highestOneBit(N) * 4;
 
         // Trignometric tables
-        double[] cos = new double[n];
-        double[] sin = new double[n];
+        double[] cos = new double[N];
+        double[] sin = new double[N];
 
         // Prepare A & B convolution arrays
         double[] ReA = new double[m];
@@ -996,10 +1207,10 @@ public class FFT {
 
         ReB[0] = 1;
         ImB[0] = 0;
-        for (int i = 0; i < n; i++) {
-            int j = (int)((long)i * i % (n * 2));  // More accurate than j = i * i
-            cos[i] = Math.cos(Math.PI * j / n);
-            sin[i] = Math.sin(Math.PI * j/ n);
+        for (int i = 0; i < N; i++) {
+            int j = (int)((long)i * i % (N * 2));  // More accurate than j = i * i
+            cos[i] = Math.cos(Math.PI * j / N);
+            sin[i] = Math.sin(Math.PI * j/ N);
 
             ReA[i] =  ReX[i] * cos[i] + ImX[i] * sin[i];
             ImA[i] = -ReX[i] * sin[i] + ImX[i] * cos[i];
@@ -1014,7 +1225,7 @@ public class FFT {
         cconvolve(ReA, ImA, ReB, ImB);
 
         // Repack into X
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < N; i++) {
             ReX[i] =  ReA[i] * cos[i] + ImA[i] * sin[i];
             ImX[i] = -ReA[i] * sin[i] + ImA[i] * cos[i];
         }
@@ -1027,12 +1238,12 @@ public class FFT {
      *
      * @param  x the Complex signal array
      *
-     * @throws IllegalArgumentException if the length of {@code ReX} does not equal
-     *         the length of {@code ImX}
+     * @throws IllegalArgumentException if the length of {@code x} is greater than N
      */
-    private static void bluestein(Complex[] x) {
+    private static void bluestein(Complex[] x, int N) {
         // Find a power-of-2 convolution length m such that M >= N * 2 + 1
-        int N = x.length;
+		if (N > x.length)
+			throw new IllegalArgumentException("Signal array length must be less than N");
         int M = Integer.highestOneBit(N) * 4;
 
         // Trignometric tables
@@ -1076,22 +1287,22 @@ public class FFT {
     public static void cconvolve(float[] ReX, float[] ImX, float[] ReY, float[] ImY) {
         // should probably pad x and y with 0s so that they have same length and are powers of 2
         int n = ReX.length;
-        if (n != ReY.length)
+        if(n != ReY.length)
             throw new IllegalArgumentException("Convolution arrays must be identical length!");
 
         // compute fft of each sequence
-        fft(ReX, ImX);
-        fft(ReY, ImY);
+        complexFFT(ReX, ImX);
+        complexFFT(ReY, ImY);
 
         // point-wise multiply
-        for (int i = 0; i < n; i++) {
+        for(int i = 0; i < n; i++) {
             float temp = ReX[i];
-            ReX[i] = ReX[i] * ReY[i] - ImX[i] * ImY[i];
-            ImX[i] = temp * ImY[i] + ImX[i] * ReY[i];
+            ReX[i] = ReX[i]*ReY[i] - ImX[i]*ImY[i];
+            ImX[i] = temp*ImY[i] + ImX[i]*ReY[i];
         }
 
         // compute inverse fft
-        ifft(ReX, ImX);
+        complexIFFT(ReX, ImX);
     }
 
     /**
@@ -1107,23 +1318,23 @@ public class FFT {
      */
     public static void cconvolve(double[] ReX, double[] ImX, double[] ReY, double[] ImY) {
         // should probably pad x and y with 0s so that they have same length and are powers of 2
-        int n = ReX.length;
-        if (n != ReY.length)
+        int N = ReX.length;
+        if(N != ReY.length)
             throw new IllegalArgumentException("Convolution arrays must be identical length!");
 
         // compute fft of each sequence
-        fft(ReX, ImX);
-        fft(ReY, ImY);
+        complexFFT(ReX, ImX);
+        complexFFT(ReY, ImY);
 
         // point-wise multiply
-        for (int i = 0; i < n; i++) {
+        for(int i = 0; i < N; i++) {
             double temp = ReX[i];
-            ReX[i] = ReX[i] * ReY[i] - ImX[i] * ImY[i];
-            ImX[i] = temp * ImY[i] + ImX[i] * ReY[i];
+            ReX[i] = ReX[i]*ReY[i] - ImX[i]*ImY[i];
+            ImX[i] = temp*ImY[i] + ImX[i]*ReY[i];
         }
 
         // compute inverse fft
-        ifft(ReX, ImX);
+        complexIFFT(ReX, ImX);
     }
 
     /**
@@ -1137,21 +1348,21 @@ public class FFT {
      */
     public static void cconvolve(Complex[] x, Complex[] y) {
         // should probably pad x and y with 0s so that they have same length and are powers of 2
-        int n = x.length;
-        if (n != y.length)
+        int N = x.length;
+        if(N != y.length)
             throw new IllegalArgumentException("Convolution arrays must be identical length!");
 
         // compute fft of each sequence
-        fft(x);
-        fft(y);
+        complexFFT(x);
+        complexFFT(y);
 
         // point-wise multiply
-        for (int i = 0; i < n; i++) {
+        for(int i = 0; i < N; i++) {
             x[i] = x[i].times(y[i]);
         }
 
         // compute inverse fft
-        ifftCopy(x);
+        complexIFFT(x);
     }
 
     /**
@@ -1165,16 +1376,15 @@ public class FFT {
     public static float[] autocorr(final float[] x) {
         int N = x.length;
         float[] ReAC = new float[x.length*2];
-        float[] ImAC = new float[x.length*2];
         System.arraycopy(x, 0, ReAC, 0, N);
 
-        fft(ReAC, ImAC);
+        float[] ImAC = fft(ReAC);
         for(int i = 0; i < ReAC.length; i++){
             ReAC[i] = ReAC[i]*ReAC[i] + ImAC[i]*ImAC[i];
             ImAC[i] = 0;
         }
 
-        ifft(ReAC, ImAC);
+        complexIFFT(ReAC, ImAC);
         for(int i = 0; i < ReAC.length; i++){
             ReAC[i] /= N;
         }
@@ -1193,16 +1403,15 @@ public class FFT {
     public static double[] autocorr(final double[] x) {
         int N = x.length;
         double[] ReAC = new double[x.length*2];
-        double[] ImAC = new double[x.length*2];
         System.arraycopy(x, 0, ReAC, 0, N);
 
-        fft(ReAC, ImAC);
+		double[] ImAC = fft(ReAC);
         for(int i = 0; i < ReAC.length; i++){
             ReAC[i] = (float)(ReAC[i]*ReAC[i] + ImAC[i]*ImAC[i]);
             ImAC[i] = 0;
         }
 
-        ifft(ReAC, ImAC);
+        complexIFFT(ReAC, ImAC);
         for(int i = 0; i < ReAC.length; i++){
             ReAC[i] /= N;
         }
@@ -1225,12 +1434,12 @@ public class FFT {
         float[] ImAC = new float[x.length*2];
         System.arraycopy(x, 0, AC, 0, N);
 
-        fft(AC);
+        complexFFT(AC);
         for(int i = 0; i < AC.length; i++){
             AC[i] = new Complex(AC[i].power(), 0);
         }
 
-        ifft(AC);
+        complexIFFT(AC);
         for(int i = 0; i < AC.length; i++){
             AC[i] = AC[i].divide(N);
         }

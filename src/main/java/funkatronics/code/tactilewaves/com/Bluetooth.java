@@ -54,34 +54,147 @@
  * ____________________________________________________________________________)
  */
 
-package funkatronics.code.tactilewaves.dsp;
+package funkatronics.code.tactilewaves.com;
+
+import java.io.IOException;
 
 /**
- *  {@code WaveProcessor} Interface for building objects that perform some signal processing on a
- *  buffer of audio data/samples. Can be used to build, for example, a pitch processor.
- *
+ * Interface that defines required Bluetooth functionality of implementing class
  * <p>
- *     Based on Joren Six's <a href="https://github.com/JorenSix/TarsosDSP/blob/master/src/core/be/tarsos/dsp/AudioProcessor.java">AudioProcessor</a>
- *     object from his <a href="http://github.com/JorenSix/TarsosDSP/">TarsosDSP</a> library.
+ *     Used to abstract away the different approaches for Bluetooth communication on Android and
+ *     regular old Java.
  * </p>
  *
  * @author Marco Martinez
  */
-public interface WaveProcessor {
 
-        /**
-         * Process the audio frame. Do the actual signal processing on an
-         * audio buffer.
-         *
-         * @param frame The {@link WaveFrame} that contains the frame of audio.
-         * @return False if the chain needs to stop here, true otherwise.
-         */
-        boolean process(WaveFrame frame);
+public abstract class Bluetooth {
 
-        /**
-         * Notify the WaveProcessor that no more data is available and processing
-         * has finished. Can be used to deallocate resources or cleanup.
-         */
-        void processingFinished();
+    /**
+     * Bluetooth is not available or not supported
+     */
+    public static int STATE_NONE = -1;
 
+    /**
+     * Bluetooth is supported, but not ready/available
+     */
+	public static int STATE_OK = 0;
+
+    /**
+     * Bluetooth is ready to do Bluetooth stuff
+     */
+	public static int STATE_READY = 1;
+
+    /**
+     * Bluetooth is currently discovering
+     */
+	public static int STATE_DISCOVERY = 2;
+
+    /**
+     * Bluetooth is currently connecting to a device
+     */
+	public static int STATE_CONNECTING = 3;
+
+    /**
+     * Bluetooth is currently connected to a device
+     */
+	public static int STATE_CONNECTED = 4;
+
+	// Store current state (used with state constants above)
+	protected int mState;
+
+	// Object that listens to Bluetooth events
+	protected BluetoothEventListener mListener;
+
+    /**
+     * Set the {@link BluetoothEventListener} for this {@code Bluetooth} object
+     *
+     * @param listener a {@code BluetoothEventListener} that listens for events from this Bluetooth
+     *                 object
+     */
+	public void setListener(BluetoothEventListener listener) {
+		mListener = listener;
+	}
+
+	/**
+	 * Set the Bluetooth State (INTERNAL USE ONLY)
+	 *
+	 * @param state STATE Constant
+	 */
+	protected void setState(int state) {
+		if(state != mState) {
+			mState = state;
+			if(mListener != null) mListener.bluetoothStateChanged(this, state);
+		}
+	}
+
+    /**
+     * Get the current Bluetooth State
+     *
+     * @return integer representing the BT State
+     */
+	public int getState() {
+		return mState;
+	}
+
+	/**
+	 * Get a list of "name: address" strings from the device's list of paired devices
+	 *
+	 * @return an array of {@code Strings} listing the name and address of each paired device
+	 */
+	public abstract String[] getPairedDevices();
+
+    /**
+     * Attempt to connect to a remote bluetooth device
+     *
+     * @param index the index in the paired device array of the device to connect to.
+     */
+	public abstract void connect(int index);
+
+    /**
+     * Send a string of char's over BT (UTF-8 Encoding)
+     *
+     * @param send - String to send over BT
+     *
+     * @throws IOException if an exception is thrown when attempting to write to the stream, or if
+     *                     Bluetooth is not enabled/available
+     */
+	public void send(String send) throws IOException {
+    	send(send.getBytes("UTF-8"));
+	}
+
+    /**
+	 * Send an array of bytes over BT
+	 *
+	 * @param send - byte array to send
+	 *
+	 * @throws IOException if an exception is thrown when attempting to write to the stream, or if
+	 *                     Bluetooth is not enabled/available
+	 */
+	public void send(byte[] send) throws IOException {
+		for(byte b : send)
+			send(b);
+	}
+
+	/**
+	 * Send a byte over BT
+	 *
+	 * @param send - byte to send
+	 *
+	 * @throws IOException if an exception is thrown when attempting to write to the stream, or if
+	 *                     Bluetooth is not enabled/available
+	 */
+	public abstract void send(byte send) throws IOException;
+
+    /**
+     * Disconect from current Connected Thread
+     *
+     * @throws IOException if an exception is thrown when attempting to close the stream
+     */
+	public abstract void terminateConnection() throws IOException;
+
+	// Send received data to the listener
+	protected void sendDataToListener(byte[] data) {
+		if(mListener != null) mListener.bluetoothDataAvailable(this, data);
+	}
 }

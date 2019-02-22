@@ -123,12 +123,10 @@ public class WaveFormat{
     /**
      * Returns a <code>WaveFormat</code> with the default Android format (16 bit mono Big Endian PCM)
      *
-     * @param sampleRate the sample rate to use in this format
-     *
      * @return a {@code WaveFormat} with the default Android audio format parameters
      */
-    public static WaveFormat AndroidFormat(int sampleRate) {
-        return new WaveFormat(WaveFormat.ENCODING_PCM_SIGNED, true, sampleRate, 16, 1);
+    public static WaveFormat AndroidFormat() {
+        return new WaveFormat(WaveFormat.ENCODING_PCM_SIGNED, true, 44100, 16, 1);
     }
 
     /**

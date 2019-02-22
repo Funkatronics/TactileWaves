@@ -54,34 +54,35 @@
  * ____________________________________________________________________________)
  */
 
-package funkatronics.code.tactilewaves.dsp;
+package funkatronics.code.tactilewaves.com;
 
 /**
- *  {@code WaveProcessor} Interface for building objects that perform some signal processing on a
- *  buffer of audio data/samples. Can be used to build, for example, a pitch processor.
- *
- * <p>
- *     Based on Joren Six's <a href="https://github.com/JorenSix/TarsosDSP/blob/master/src/core/be/tarsos/dsp/AudioProcessor.java">AudioProcessor</a>
- *     object from his <a href="http://github.com/JorenSix/TarsosDSP/">TarsosDSP</a> library.
- * </p>
+ * Listener interface to create listener objects to listen to Bluetooth Events
  *
  * @author Marco Martinez
+ * @see Bluetooth
  */
-public interface WaveProcessor {
 
-        /**
-         * Process the audio frame. Do the actual signal processing on an
-         * audio buffer.
-         *
-         * @param frame The {@link WaveFrame} that contains the frame of audio.
-         * @return False if the chain needs to stop here, true otherwise.
-         */
-        boolean process(WaveFrame frame);
+public interface BluetoothEventListener {
 
-        /**
-         * Notify the WaveProcessor that no more data is available and processing
-         * has finished. Can be used to deallocate resources or cleanup.
-         */
-        void processingFinished();
+    /**
+     * Notify the listener that Bluetooth is not currently available for this device for some reason
+     */
+    void bluetoothNotAvailable(int state);
 
+    /**
+     * Notify the listener that the Bluetooth state has changed
+     *
+     * @param bluetooth the Bluetooth object
+     * @param state an integer representing the state
+     */
+    void bluetoothStateChanged(Bluetooth bluetooth, int state);
+
+    /**
+     * Notify the listener that some data has been received from a connected device
+     *
+     * @param bluetooth the Bluetooth object
+     * @param data the array of bytes that have been received
+     */
+    void bluetoothDataAvailable(Bluetooth bluetooth, byte[] data);
 }

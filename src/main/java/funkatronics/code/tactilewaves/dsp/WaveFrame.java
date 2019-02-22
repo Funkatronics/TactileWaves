@@ -58,6 +58,7 @@ package funkatronics.code.tactilewaves.dsp;
 
 import java.util.HashMap;
 
+import funkatronics.code.tactilewaves.dsp.toolbox.Window;
 import funkatronics.code.tactilewaves.io.WaveFormat;
 
 /**
@@ -69,7 +70,7 @@ import funkatronics.code.tactilewaves.io.WaveFormat;
  *     the pitch of the frame, or its MFCCs.
  * </p>
  * <p>
- *     Loosely based on Joren Six's <a href="http://github.com/JorenSix/TarsosDSP/">AudioEvent</a>
+ *     Loosely based on Joren Six's <a href="https://github.com/JorenSix/TarsosDSP/blob/master/src/core/be/tarsos/dsp/AudioEvent.java">AudioEvent</a>
  *     object from his <a href="http://github.com/JorenSix/TarsosDSP/">TarsosDSP</a> library.
  * </p>
  *
@@ -87,7 +88,7 @@ public class WaveFrame {
     // The sample buffer - the audio frame itself
     private float[] mSamples;
 
-    // The length of the frame (length of the sample buffer
+    // The length of the frame (length of the sample buffer)
     private int mLength;
 
     //private List<WaveFeature> features;
@@ -194,7 +195,7 @@ public class WaveFrame {
     private double dBSPL(final float[] buffer) {
         double value = Math.pow(totalEnergy(buffer), 0.5);
         value = value/buffer.length;
-        return lin2dB(value);
+        return a2dB(value);
     }
 
     /**
@@ -243,13 +244,27 @@ public class WaveFrame {
         return (index/(double) mLength) * mFormat.getSampleRate();
     }
 
+	/**
+	 * Covert a linear value to decibels (dBu)
+	 *
+	 * @param val the value to convert to decibels
+	 *
+	 * @return the resulting decibel value
+	 */
+	public static double a2dB(final double val) {
+		return a2dB(val, 0.775);
+	}
+
     /**
-     * Covert a linear value to decibels (dB)
+     * Covert a linear value to decibels (dB). The aRef parameter defines the resulting decibel
+	 * scale, i.e. 1.0 for dBV, 0.775 for dBu, etc.
      *
      * @param val the value to convert to decibels
+     * @param aRef the reference amplitude at 0.0 dB
+	 *
      * @return the resulting decibel value
      */
-    public static double lin2dB(final double val) {
-        return 20 * Math.log10(val);
+    public static double a2dB(final double val, final double aRef) {
+        return 20 * Math.log10(val/aRef);
     }
 }
