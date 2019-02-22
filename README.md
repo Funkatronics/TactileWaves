@@ -132,6 +132,10 @@ Contributions to Tactile Waves are welcomed. If you would live to contribute to 
 
 ## Versioning
 
+Version 1.0.1 - 2018-03-22
+* Minor updates and fixed a few issues, added a separate changelog
+* See the [changelog](Changelog.md) for more information
+
 Version 1.0.0 - 2018-03-09
 * First public release
 
