@@ -60,6 +60,12 @@ package funkatronics.code.tactilewaves.dsp;
  *  {@code WaveProcessor} Interface for building objects that perform some signal processing on a
  *  buffer of audio data/samples. Can be used to build, for example, a pitch processor.
  *
+ * <p>
+ *     Based on Joren Six's <a href="https://github.com/JorenSix/TarsosDSP/blob/master/src/core/be/tarsos/dsp/AudioProcessor.java">AudioProcessor</a>
+ *     object from his <a href="http://github.com/JorenSix/TarsosDSP/">TarsosDSP</a> library.
+ * </p>
+ *
+ * @author Marco Martinez
  */
 public interface WaveProcessor {
 

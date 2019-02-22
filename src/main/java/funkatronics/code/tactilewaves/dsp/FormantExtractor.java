@@ -57,9 +57,12 @@
 package funkatronics.code.tactilewaves.dsp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import funkatronics.code.tactilewaves.dsp.toolbox.Filter;
 import funkatronics.code.tactilewaves.dsp.toolbox.LPC;
+import funkatronics.code.tactilewaves.dsp.toolbox.Window;
 
 /**
  * Processor Class that extracts formant frequencies from an audio signal
@@ -92,8 +95,12 @@ public class FormantExtractor implements WaveProcessor {
 	}
 
     public boolean process(WaveFrame frame) {
+		// Window
+		float[] x = Window.hamming(frame.getSamples());
+		// Pre-Emphasis filtering
+		x = Filter.preEmphasis(x);
     	// Get list of formant (frequency, bandwidth) pairs
-        double[][] formants = LPC.estimateFormants(frame.getSamples(), mNumFormants, frame.getSampleRate());
+        double[][] formants = LPC.estimateFormants(x, mNumFormants, frame.getSampleRate());
         // Prune the formant list for valid formants
         List<Float> formList = new ArrayList<Float>();
         for(int i = 0; i < formants.length; i++) {

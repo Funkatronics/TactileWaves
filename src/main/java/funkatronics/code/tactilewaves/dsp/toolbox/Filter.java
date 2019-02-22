@@ -74,181 +74,258 @@ public class Filter {
 
     private static final Logger LOG = Logger.getLogger(Filter.class.getSimpleName());
 
-    // PI constant, because it is used a lot in this class
+    // pi constant, because it is used a lot in this class
     private final static double pi = Math.PI;
 
-    // Integer constants that respresent the different filter types
+    // Integer constants that represent the different filter types
     /**
      * A Butterworth filter
      */
-    public static final int FILTER_BUTTERWORTH = 0;
+    public static final int ALLPOLE_BUTTERWORTH = 0;
 
     /**
      * A Critically Damped filter
      */
-    public static final int FILTER_CRITICALLY_DAMPED = 1;
+    public static final int ALLPOLE_CRITICALLY_DAMPED = 1;
 
     /**
      * A Bessel filter
      */
-    public static final int FILTER_BESSEL = 2;
+    public static final int ALLPOLE_BESSEL = 2;
 
-    // Is this filter a high pass filter?
-    private boolean mHighPass = false;
+	/**
+	 * An analog modeled low-pass filter
+	 */
+	public static final int BIQUAD_LPF = 4;
 
-    // What filter type is this filter? (default = Butterworth)
-    private int mFilterType = FILTER_BUTTERWORTH;
+	/**
+	 * An analog modeled high-pass filter
+	 */
+	public static final int BIQUAD_HPF = 5;
 
-    // How many poles in this filter? (default = 2)
-    private int mNP = 2;
+	/**
+	 * An analog modeled band-pass filter
+	 */
+	public static final int BIQUAD_BPF = 6;
 
-    // What is the cutoff frequency of this filter? (scaled 0.0-0.5)
-    private double mFc;
+	/**
+	 * An analog modeled notch (band-reject) filter
+	 */
+	public static final int BIQUAD_NOTCH = 7;
+
+	/**
+	 * An analog modeled all-pass filter
+	 */
+	public static final int BIQUAD_APF = 8;
+
+	/**
+	 * An analog modeled peakingEQ filter
+	 */
+	public static final int BIQUAD_PEQ = 9;
+
+	/**
+	 * An analog modeled low-shelf filter
+	 */
+	public static final int BIQUAD_LSH = 10;
+
+	/**
+	 * An analog modeled high-shelf filter
+	 */
+	public static final int BIQUAD_HSH = 11;
 
     // Arrays to hold filter coefficients
-    private double[] a = new double[3];
-    private double[] b = new double[3];
+    private double[] mA;
+    private double[] mB;
+
+	/**
+	 * Construct a Filter object with the supplied coefficients
+	 *
+	 * @param b the numerator filter coefficients
+	 * @param a the denominator filter coefficients
+	 */
+	public Filter(float[] b, float[] a){
+		mA = new double[a.length];
+		for(int i = 0; i < a.length; i++) {
+			mA[i] = a[i];
+		}
+		mB = new double[b.length];
+		for(int i = 0; i < b.length; i++) {
+			mB[i] = b[i];
+		}
+	}
 
     /**
-     * Construct a default filter
+     * Construct a Filter object with the supplied coefficients
      *
-     * @param Fc the cutoff frequency, as a fraction of the sample rate (0.0-0.5)
-     * @param highPass is this filter a high pass filter?
+	 * @param b the numerator filter coefficients
+	 * @param a the denominator filter coefficients
      */
-    public Filter(float Fc, boolean highPass){
-        mFc = Fc;
-        mNP = 2;
-        mFilterType = FILTER_BUTTERWORTH;
-        mHighPass = highPass;
-        getCoefficients();
+    public Filter(double[] b, double[] a){
+        mA = a;
+        mB = b;
     }
 
-    /**
-     * Construct a new {@code Filter} object with these parameters
-     *
-     * @param Fc the cutoff frequency, as a fraction of the sample rate (0.0-0.5)
-     * @param NP the number of poles of the filter
-     * @param filterType the type of filter to use
-     * @param highPass is this filter a high pass filter?
-     */
-    public Filter(float Fc, int NP, int filterType, boolean highPass){
-        mFc = Fc;
-        mNP = NP;
-        mFilterType = filterType;
-        mHighPass = highPass;
-        getCoefficients();
-    }
+	/**
+	 * Get the numerator (feedforward) filter coefficients of this Filter instance
+	 *
+	 * @return the numerator filter coefficients
+	 */
+	public double[] getNumerator() {
+    	return mB;
+	}
 
-    // Get the filter coefficients for this filter instance
-    private void getCoefficients() {
-        if(mNP < 2) throw new IllegalArgumentException("Filter cannot have less than 2 poles!");
-        double[] A = new double[mNP +3];
-        double[] B = new double[mNP +3];
-        A[2] = 1;
-        B[2] = 1;
-        for(int p = 1; p <= mNP /2; p++) {
+	/**
+	 * Get the denominator (feedback) filter coefficients of this Filter instance
+	 *
+	 * @return the denominator filter coefficients
+	 */
+	public double[] getDenominator() {
+		return mA;
+	}
 
-            //gcHelper_old(Fc, NP, p, highPass);
-            get2PoleCoefficients();
+	/**
+	 * Returns an All-pole IIR filter according to the design parameters
+	 *
+	 * @param Fc the cutoff frequency, as a fraction of the sample rate (0.0-0.5)
+	 * @param passes the number of filter passes that will be used
+	 * @param filterType the type of filter ({@code ALLPOLE_BUTTERWORTH},
+	 * 					 {@code ALLPOLE_CRITICALLY_DAMPED}, or {@code ALLPOLE_BESSEL})
+	 * @param highPass is this filter a high pass filter?
+	 */
+	public static Filter allPole(double Fc, int passes, int filterType, boolean highPass) {
+		double[] b = new double[3];
+		double[] a = new double[3];
+		int n = passes;
+		double c, g, p;
+		switch (filterType) {
+			case ALLPOLE_BUTTERWORTH:
+				c = Math.pow((Math.pow(2., 1./(double)n) - 1), -0.25);
+				g = 1.;
+				p = Math.sqrt(2.);
+				break;
+			case ALLPOLE_CRITICALLY_DAMPED:
+				c = Math.pow((Math.pow(2., 1./(2.*(double)n)) - 1), -0.5);
+				g = 1.;
+				p = 2.;
+				break;
+			case ALLPOLE_BESSEL:
+				c = Math.pow((Math.pow((Math.pow(2., 1./(double)n) - 0.75), 0.5) - 0.5), -0.5)/Math.sqrt(3.);
+				g = 3.;
+				p = 3.;
+				break;
+			default:
+				c = Math.pow((Math.pow(2., 1 / n) - 1), -0.25);
+				g = 1.;
+				p = Math.sqrt(2.);
+		}
 
-            double[] TA = Arrays.copyOf(A, A.length);
-            double[] TB = Arrays.copyOf(B, B.length);
+		if(highPass) c = 1./c;
 
-            for(int i = 2; i < A.length; i++) {
-                A[i] = a[0]*TA[i] + a[1]*TA[i-1] + a[2]*TA[i-2];
-                B[i] = TB[i] - b[1]*TB[i-1] - b[2]*TB[i-2];
-            }
-        }
+		double fc = c*Fc;
 
-        B[2] = 0;
-        for(int i = 0; i < A.length-2; i++) {
-            A[i] = A[i+2];
-            B[i] = -B[i+2];
-        }
+		// Check stability
+		if (!(fc > 0. && fc < 0.25))
+			LOG.info("Filter unstable for Fc = " + Fc);
 
-        double SA = 0;
-        double SB = 0;
-        for(int i = 0; i < A.length-2; i++) {
-            if(mHighPass) {
-                SA += A[i]*Math.pow(-1, i);
-                SB += B[i]*Math.pow(-1, i);
-            } else {
-                SA += A[i];
-                SB += B[i];
-            }
-        }
+		if(highPass) fc = 0.5 - fc;
 
-        double gain = SA/(1 - SB);
+		double w0 = Math.tan(pi*fc);
 
-        for(int i = 0; i < A.length-2; i++) {
-            A[i] = A[i]/gain;
-        }
+		double K1 = p*w0;
+		double K2 = g*w0*w0;
 
-        a = Arrays.copyOf(A, mNP +1);
-        b = Arrays.copyOf(B, mNP +1);
-    }
+		b[0] = K2/(1 + K1 + K2);
+		b[1] = 2*b[0];
+		b[2] = b[0];
+		a[0] = 1;
+		a[1] = -2*b[0]*(1/K2 - 1);
+		a[2] = -1 + (b[0] + b[1] + b[2] - a[1]);
 
-    // Helper function for getCoefficients() to get the 2-pole filter coefficients
-    private void get2PoleCoefficients() {
-        int numPass = 1;
-        double c, g, p;
-        switch (mFilterType) {
-            case FILTER_BUTTERWORTH:
-                c = Math.pow((Math.pow(2.0, 1.0/(double)numPass) - 1), -0.25);
-                g = 1.0;
-                p = Math.sqrt(2.0);
-                break;
-            case FILTER_CRITICALLY_DAMPED:
-                c = Math.pow((Math.pow(2.0, 1.0/(2.0*(double)numPass)) - 1), -0.5);
-                g = 1.0;
-                p = 2.0;
-                break;
-            case FILTER_BESSEL:
-                c = Math.pow((Math.pow((Math.pow(2.0, 1.0/(double)numPass) - 0.75), 0.5) - 0.5), -0.5) / Math.sqrt(3.0);
-                g = 3.0;
-                p = 3.0;
-                break;
-            default:
-                c = Math.pow((Math.pow(2.0, 1 / numPass) - 1), -0.25);
-                g = 1.0;
-                p = Math.sqrt(2.0);
-                mFilterType = FILTER_BUTTERWORTH;
-        }
+		if(highPass) {
+			a[1] = -a[1];
+			b[1] = -b[1];
+		}
 
-        if(mHighPass) c = 1/c;
+//		System.out.println("B = " + Arrays.toString(b));
+//		System.out.println("A = " + Arrays.toString(a));
 
-        double fc = c * mFc;
+		return new Filter(b, a);
+	}
 
-        // Check stability
-        if (!(fc > 0.0 && fc < 0.25))
-            LOG.info("Filter unstable for Fc = " + mFc);
-            //Log.i(TAG,"Filter unstable: " + fc);
+	/**
+	 * Returns the coefficients of an all-pole IIR filter with these parameters
+	 *
+	 * @param fc the cutoff frequency, as a fraction of the sample rate (0.0-0.5)
+	 * @param NP the number of poles of the filter
+	 * @param pr the percentage of ripple in in the passband
+	 * @param highPass is this filter a high pass filter?
+	 */
+	public static Filter chebyshev(double fc, int NP, double pr, boolean highPass) {
+		if(NP < 2) throw new IllegalArgumentException("Filter cannot have less than 2 poles!");
+		double[] b = new double[3];
+		double[] a = new double[3];
+		double[] B = new double[NP + 3];
+		double[] A = new double[NP + 3];
+		B[2] = 1;
+		A[2] = 1;
+		for(int p = 1; p <= NP/2; p++) {
 
-        if(mHighPass) fc = 0.5 - fc;
+			chebyshev(b, a, fc, pr, NP, highPass, p);
 
-        double w0 = Math.tan(pi*fc);
+			double[] TB = Arrays.copyOf(B, B.length);
+			double[] TA = Arrays.copyOf(A, A.length);
 
-        double K1 = p*w0;
-        double K2 = g*w0*w0;
+			for(int i = 2; i < B.length; i++) {
+				B[i] = b[0]*TB[i] + b[1]*TB[i-1] + b[2]*TB[i-2];
+				A[i] = a[0]*TA[i] - a[1]*TA[i-1] - a[2]*TA[i-2];
+			}
+		}
 
-        a[0] = K2/(1 + K1 + K2);
-        a[1] = 2* a[0];
-        a[2] = a[0];
-        b[1] = 2* a[0]*(1/K2 - 1);
-        b[2] = 1 - (a[0] + a[1] + a[2] + b[1]);
+		//A[2] = 0;
+		for(int i = 0; i < B.length-2; i++) {
+			B[i] = B[i+2];
+			A[i] = A[i+2];
+		}
 
-        if(mHighPass) {
-            a[1] = -a[1];
-            b[1] = -b[1];
-        }
-    }
+		double SB = 0.0;
+		double SA = 0.0;
+		for(int i = 0; i < B.length-2; i++) {
+			if(highPass) {
+				SB += B[i]*Math.pow(-1, i);
+				SA += A[i]*Math.pow(-1, i);
+			} else {
+				SB += B[i];
+				SA += A[i];
+			}
+		}
 
-    private void gcHelper_old(double Fc, int NP, int p, boolean highPass) {
+		double gain = SB/SA;
+		for(int i = 0; i < B.length-2; i++) {
+			B[i] = B[i]/gain;
+		}
+
+//		System.out.println("B = " + Arrays.toString(B));
+//		System.out.println("A = " + Arrays.toString(A));
+
+		return new Filter(Arrays.copyOf(B, B.length-2), Arrays.copyOf(A, A.length-2));
+	}
+
+	// Helper function for chebyshev
+	private static void chebyshev(double[] b, double[] a, double fc, double pr, int NP, boolean highPass, int p) {
         double rp = -Math.cos(pi/(NP*2) + (p-1)*pi/NP);
         double ip = Math.sin(pi/(NP*2) + (p-1)*pi/NP);
 
+        if(pr != 0) {
+        	double es = Math.sqrt(Math.pow(100/(100 - pr), 2) - 1.);
+        	double vx = (1./NP)*Math.log((1./es) + Math.sqrt(1./(es*es) + 1.));
+			double kx = (1./NP)*Math.log((1./es) + Math.sqrt(1./(es*es) - 1.));
+			kx = (Math.exp(kx) + Math.exp(-kx))/2;
+			rp *= ((Math.exp(vx) - Math.exp(-vx))/2)/kx;
+			rp *= ((Math.exp(vx) + Math.exp(-vx))/2)/kx;
+		}
+
         double T = 2*Math.tan(0.5);
-        double w = 2*pi*Fc;
+        double w = 2*pi*fc;
         double M = rp*rp + ip*ip;
         double D = 4 - 4*rp*T + (M*T*T);
         double X0 = T*T/D;
@@ -259,93 +336,110 @@ public class Filter {
 
         double K = Math.sin(0.5 - w/2)/Math.sin(0.5 + (w/2));
         if(highPass) K = -Math.cos(w/2 + 0.5)/Math.cos(w/2 - 0.5);
-        D = 1.0 + Y1*K - Y2*K*K;
-        a[0] = (X0 - X1*K + X2*K*K)/D;
-        a[1] = (-2*X0*K + X1 + X1*K*K - 2*X2*K)/D;
-        a[2] = (X0*K*K - X1*K + X2)/D;
-        b[1] = (2*K + Y1 + Y1*K*K - 2*Y2*K)/D;
-        b[2] = (-(K*K) - Y1*K + Y2)/D;
+		D = 1.0 + Y1*K - Y2*K*K;
+        b[0] = (X0 - X1*K + X2*(K*K))/D;
+        b[1] = (-2*X0*K + X1 + X1*K*K - 2*X2*K)/D;
+        b[2] = (X0*(K*K) - X1*K + X2)/D;
+        a[0] = 1;
+        a[1] = (2*K + Y1 + Y1*K*K - 2*Y2*K)/D;
+        a[2] = (-(K*K) - Y1*K + Y2)/D;
+
         if(highPass) {
+			b[1] = -b[1];
             a[1] = -a[1];
-            b[1] = -b[1];
         }
     }
 
-    private void getCoefficients_old() {
-        int numPass = 2;
-        double c, g, p;
-        switch (mFilterType) {
-            case FILTER_BUTTERWORTH:
-                c = Math.pow((Math.pow(2.0, 1.0/(double)numPass) - 1), -0.25);
-                g = 1.0;
-                p = Math.sqrt(2.0);
-                break;
-            case FILTER_CRITICALLY_DAMPED:
-                c = Math.pow((Math.pow(2.0, 1.0/(2.0*(double)numPass)) - 1), -0.5);
-                g = 1.0;
-                p = 2.0;
-                break;
-            case FILTER_BESSEL:
-                c = Math.pow((Math.pow((Math.pow(2.0, 1.0/(double)numPass) - 0.75), 0.5) - 0.5), -0.5) / Math.sqrt(3.0);
-                g = 3.0;
-                p = 3.0;
-                break;
-            default:
-                c = Math.pow((Math.pow(2.0, 1 / numPass) - 1), -0.25);
-                g = 1.0;
-                p = Math.sqrt(2.0);
-                mFilterType = FILTER_BUTTERWORTH;
-        }
+    public static Filter biquad(double Fc, double Q, double dBgain, int filterType) {
+		double A = Math.pow(10, dBgain/40);
+		double w0 = 2*pi*Fc;
+		double c0 = Math.cos(w0);
+		double s0 = Math.sin(w0);
+		double alpha = s0/(2*Q);
+		double sqrtA2alpha = 2*Math.sqrt(A)*alpha;
 
-        if(mHighPass) c = 1/c;
+		double[] b = new double[3];
+		double[] a = new double[3];
+		switch(filterType) {
+			case BIQUAD_LPF:
+				b[0] = (1 - c0)/2;
+				b[1] = 1 - c0;
+				b[2] = b[0];
+				a[0] = 1 + alpha;
+				a[1] = -2*c0;
+				a[2] = 1 - alpha;
+				break;
+			case BIQUAD_HPF:
+				b[0] = (1 - c0)/2;
+				b[1] = -(1 - c0);
+				b[2] = b[0];
+				a[0] = 1 + alpha;
+				a[1] = -2*c0;
+				a[2] = 1 - alpha;
+				break;
+			case BIQUAD_BPF:
+				b[0] = Q*alpha;
+				b[1] = 0;
+				b[2] = -Q*alpha;
+				a[0] = 1 + alpha;
+				a[1] = -2*c0;
+				a[2] = 1 - alpha;
+				break;
+			case BIQUAD_NOTCH:
+				b[0] = 1;
+				b[1] = -2*c0;
+				b[2] = 1;
+				a[0] = 1 + alpha;
+				a[1] = -2*c0;
+				a[2] = 1 - alpha;
+				break;
+			case BIQUAD_APF:
+				b[0] = 1 - alpha;
+				b[1] = -2*c0;
+				b[2] = 1 + alpha;
+				a[0] = 1 + alpha;
+				a[1] = -2*c0;
+				a[2] = 1 - alpha;
+				break;
+			case BIQUAD_PEQ:
+				b[0] = 1 + alpha*A;
+				b[1] = -2*c0;
+				b[2] = 1 - alpha*A;
+				a[0] = 1 + alpha/A;
+				a[1] = -2*c0;
+				a[2] = 1 - alpha/A;
+				break;
+			case BIQUAD_LSH:
+				b[0] =   A*((A + 1) - (A - 1)*c0 + sqrtA2alpha);
+				b[1] = 2*A*((A - 1) - (A + 1)*c0              );
+				b[2] =   A*((A + 1) - (A - 1)*c0 - sqrtA2alpha);
+				a[0] =     ((A + 1) + (A - 1)*c0 + sqrtA2alpha);
+				a[1] =  -2*((A - 1) + (A + 1)*c0              );
+				a[2] =     ((A + 1) + (A - 1)*c0 - sqrtA2alpha);
+				break;
+			case BIQUAD_HSH:
+				b[0] =    A*((A + 1) + (A - 1)*c0 + sqrtA2alpha);
+				b[1] = -2*A*((A - 1) + (A + 1)*c0              );
+				b[2] =    A*((A + 1) + (A - 1)*c0 - sqrtA2alpha);
+				a[0] =      ((A + 1) - (A - 1)*c0 + sqrtA2alpha);
+				a[1] =    2*((A - 1) - (A + 1)*c0              );
+				a[2] =      ((A + 1) - (A - 1)*c0 - sqrtA2alpha);
+				break;
+			default:
+				break;
+		}
 
-        double fc = c * mFc;
+		b[0] /= a[0];
+		b[1] /= a[0];
+		b[2] /= a[0];
+		a[1] /= a[0];
+		a[2] /= a[0];
+		a[0] = 1.0;
 
-        // Check stability
-        if (!(fc > 0.0 && fc < 0.25))
-            System.out.println("Filter unstable: " + fc);
+		return new Filter(b, a);
+	}
 
-        if(mHighPass) fc = 0.5 - fc;
-
-        double w0 = Math.tan(Math.PI*fc);
-
-        double K1 = p*w0;
-        double K2 = g*w0*w0;
-
-        a[0] = K2/(1 + K1 + K2);
-        a[1] = 2* a[0];
-        a[2] = a[0];
-        b[1] = 2* a[0]*(1/K2 - 1);
-        b[2] = 1 - (a[0] + a[1] + a[2] + b[1]);
-
-        if(mHighPass) {
-            a[1] = -a[1];
-            b[1] = -b[1];
-        }
-    }
-
-    /**
-     * Enable or disable the high pass flag
-     *
-     * @param highPass true to enable high pass filtering, false for low pass
-     */
-    public void enableHighPass(boolean highPass) {
-        mHighPass = highPass;
-        getCoefficients();
-    }
-
-    /**
-     * Sets the filter type of this fiter
-     *
-     * @param filterType the type of filter to use, chosen from {@code FILTER_BUTTERWORTH},
-     * {@code FILTER_CRITICALLY_DAMPED}, or {@code FILTER_BESSEL}.
-     */
-    public void setFilterType(int filterType) {
-        mFilterType = filterType;
-        getCoefficients();
-    }
-
-    /**
+	/**
      * Filter a signal/data series
      *
      * @param x the signal or data series to filtered
@@ -353,71 +447,121 @@ public class Filter {
      * @return the filtered data
      */
     public float[] filter(float[] x) {
-        return filter(a, b, x);
+        return filter(mB, mA, x);
+    }
+
+    /**
+	 * Filter a signal/data buffer using the supplied filter coefficients
+	 *
+	 * @param b the numerator filter coefficients
+	 * @param a the denominator filter coefficients
+	 * @param x the signal or data series to be filtered
+	 *
+	 * @return the filtered data
+	 */
+	public static float[] filter(float[] b, float[] a, float[] x) {
+		if(a.length < 1 || b.length < 1)
+			throw new IllegalArgumentException("Filter coefficients cannot be empty");
+		if(a[0] != 1) {
+			for(int i = 0; i < b.length; i++)
+				b[i] /= a[0];
+			for(int i = 1; i < a.length; i++)
+				a[i] /= a[0];
+			a[0] = 1.0f;
+		}
+		float[] y = new float[x.length];
+		for(int n = 0; n < x.length; n++) {
+			for (int k = 0; k < b.length; k++)
+				if(k <= n) y[n] += b[k] * x[n - k];
+			for (int k = 1; k < a.length; k++)
+				if(k <= n) y[n] -= a[k] * y[n - k];
+		}
+		return y;
+	}
+
+	/**
+	 * Filter a signal/data buffer using the supplied filter coefficients
+	 *
+	 * @param b the numerator filter coefficients
+	 * @param a the denominator filter coefficients
+	 * @param x the signal or data series to be filtered
+	 *
+	 * @return the filtered data
+	 */
+	public static float[] filter(float[] b, double[] a, double[] x) {
+		if(a.length < 1 || b.length < 1)
+			throw new IllegalArgumentException("Filter coefficients cannot be empty");
+		if(a[0] != 1) {
+			for(int i = 0; i < b.length; i++)
+				b[i] /= a[0];
+			for(int i = 1; i < a.length; i++)
+				a[i] /= a[0];
+			a[0] = 1.0f;
+		}
+		float[] y = new float[x.length];
+		for(int n = 0; n < x.length; n++) {
+			for (int k = 0; k < b.length; k++)
+				if(k <= n) y[n] += b[k] * x[n - k];
+			for (int k = 1; k < a.length; k++)
+				if(k <= n) y[n] -= a[k] * y[n - k];
+		}
+		return y;
+	}
+
+    /**
+     * Filter a signal/data buffer using the supplied filter coefficients
+     *
+     * @param b the numerator filter coefficients
+     * @param a the denominator filter coefficients
+     * @param x the signal or data series to be filtered
+     *
+     * @return the filtered data
+     */
+    public static float[] filter(double[] b, double[] a, float[] x) {
+		if(a.length < 1 || b.length < 1)
+			throw new IllegalArgumentException("Filter coefficients cannot be empty");
+		if(a[0] != 1) {
+			for(int i = 0; i < b.length; i++)
+				b[i] /= a[0];
+			for(int i = 1; i < a.length; i++)
+				a[i] /= a[0];
+			a[0] = 1.0;
+		}
+		float[] y = new float[x.length];
+		for(int n = 0; n < x.length; n++) {
+			for (int k = 0; k < b.length; k++)
+				if(k <= n) y[n] += b[k] * x[n - k];
+			for (int k = 1; k < a.length; k++)
+				if(k <= n) y[n] -= a[k] * y[n - k];
+		}
+		return y;
     }
 
     /**
      * Filter a signal/data buffer using the supplied filter coefficients
      *
-     * @param a the numerator filter coefficients
-     * @param b the denominator filter coefficients
+     * @param b the numerator filter coefficients
+     * @param a the denominator filter coefficients
      * @param x the signal or data series to be filtered
      *
      * @return the filtered data
      */
-    public static float[] filter(float[] a, float[] b, float[] x) {
+    public static double[] filter(double[] b, double[] a, double[] x) {
         if(a.length < 1 || b.length < 1)
             throw new IllegalArgumentException("Filter coefficients cannot be empty");
-        float[] y = new float[x.length];
-        for(int n = 0; n < x.length; n++) {
-            for (int k = 0; k < a.length; k++)
-                if(k <= n) y[n] += a[k] * x[n - k];
-            for (int k = 1; k < b.length; k++)
-                if(k <= n) y[n] -= b[k] * y[n - k];
-        }
-        return y;
-    }
-
-    /**
-     * Filter a signal/data buffer using the supplied filter coefficients
-     *
-     * @param a the numerator filter coefficients
-     * @param b the denominator filter coefficients
-     * @param x the signal or data series to be filtered
-     *
-     * @return the filtered data
-     */
-    public static float[] filter(double[] a, double[] b, float[] x) {
-        if(a.length < 1 || b.length < 1)
-            throw new IllegalArgumentException("Filter coefficients cannot be empty");
-        float[] y = new float[x.length];
-        for(int n = 0; n < x.length; n++) {
-            for (int k = 0; k < a.length; k++)
-                if(k <= n) y[n] += a[k] * x[n - k];
-            for (int k = 1; k < b.length; k++)
-                if(k <= n) y[n] -= b[k] * y[n - k];
-        }
-        return y;
-    }
-
-    /**
-     * Filter a signal/data buffer using the supplied filter coefficients
-     *
-     * @param a the numerator filter coefficients
-     * @param b the denominator filter coefficients
-     * @param x the signal or data series to be filtered
-     *
-     * @return the filtered data
-     */
-    public static double[] filter(double[] a, double[] b, double[] x) {
-        if(a.length < 1 || b.length < 1)
-            throw new IllegalArgumentException("Filter coefficients cannot be empty");
+        if(a[0] != 1) {
+        	for(int i = 0; i < b.length; i++)
+        		b[i] /= a[0];
+			for(int i = 1; i < a.length; i++)
+				a[i] /= a[0];
+			a[0] = 1.0;
+		}
         double[] y = new double[x.length];
         for(int n = 0; n < x.length; n++) {
-            for (int k = 0; k < a.length; k++)
-                if(k <= n) y[n] += a[k] * x[n - k];
-            for (int k = 1; k < b.length; k++)
-                if(k <= n) y[n] -= b[k] * y[n - k];
+            for (int k = 0; k < b.length; k++)
+                if(k <= n) y[n] += b[k] * x[n - k];
+            for (int k = 1; k < a.length; k++)
+                if(k <= n) y[n] -= a[k] * y[n - k];
         }
         return y;
     }
@@ -452,6 +596,80 @@ public class Filter {
 		return Filter.filter(b, a, x);
 	}
 
+	/**
+	 * Apply a k-Weighting filter to a signal/data series
+	 *
+	 * @param x the signal or data series to be filtered
+	 * @param fs the sample rate of the signal
+	 *
+	 * @return the filtered data
+	 */
+	public static float[] kWeighting(float[] x, int fs) {
+		// Calculate coefficients from sample rate
+		// First Stage Shelving Coefficients
+		double VH = 1.584864701130855, VB = 1.258720930232562, VL = 1.0;
+		double Q = 0.7071752369554196, fc = 1681.974450955533;
+		double omega = Math.tan(Math.PI*fc/fs);
+		double[] a1 = new double[3];
+		double[] b1 = new double[3];
+		a1[0] = (omega*omega + omega/Q + 1);
+		a1[1] = 2*(omega*omega - 1)/a1[0];
+		a1[2] = (omega*omega - omega/Q + 1)/a1[0];
+		b1[0] = (VL*omega*omega + VB*omega/Q + VH)/a1[0];
+		b1[1] = 2*(VL*omega*omega - VH)/a1[0];
+		b1[2] = (VL*omega*omega - VB*omega/Q + VH)/a1[0];
+		a1[0] = 1.0;
+		//Second Stage Highpass Coefficients
+		Q = 0.5003270373238773;
+		fc = 38.13547087602444;
+		omega = Math.tan(Math.PI*fc/fs);
+		double[] a2 = new double[3];
+		double[] b2 = {1, -2, 1};
+		a2[0] = omega*omega + omega/Q + 1;
+		a2[1] = 2*(omega*omega - 1)/a2[0];
+		a2[2] = (omega*omega - omega/Q + 1)/a2[0];
+		a2[0] = 1.0;
+		// Filter
+		return Filter.filter(b2, a2, Filter.filter(b1, a1, x));
+	}
+
+    /**
+     * Apply a k-Weighting filter to a signal/data series
+     *
+     * @param x the signal or data series to be filtered
+	 * @param fs the sample rate of the signal
+     *
+     * @return the filtered data
+     */
+    public static double[] kWeighting(double[] x, int fs) {
+    	// Calculate coefficients from sample rate
+		// First Stage Shelving Coefficients
+    	double VH = 1.584864701130855, VB = 1.258720930232562, VL = 1.0;
+		double Q = 0.7071752369554196, fc = 1681.974450955533;
+    	double omega = Math.tan(Math.PI*fc/fs);
+        double[] a1 = new double[3];
+        double[] b1 = new double[3];
+		a1[0] = (omega*omega + omega/Q + 1);
+		a1[1] = 2*(omega*omega - 1)/a1[0];
+		a1[2] = (omega*omega - omega/Q + 1)/a1[0];
+        b1[0] = (VL*omega*omega + VB*omega/Q + VH)/a1[0];
+        b1[1] = 2*(VL*omega*omega - VH)/a1[0];
+        b1[2] = (VL*omega*omega - VB*omega/Q + VH)/a1[0];
+        a1[0] = 1.0;
+        //Second Stage Highpass Coefficients
+		Q = 0.5003270373238773;
+		fc = 38.13547087602444;
+		omega = Math.tan(Math.PI*fc/fs);
+		double[] a2 = new double[3];
+        double[] b2 = {1, -2, 1};
+		a2[0] = omega*omega + omega/Q + 1;
+		a2[1] = 2*(omega*omega - 1)/a2[0];
+		a2[2] = (omega*omega - omega/Q + 1)/a2[0];
+		a2[0] = 1.0;
+		// Filter
+        return Filter.filter(b2, a2, Filter.filter(b1, a1, x));
+    }
+
     /**
      * Apply a Pre-Emphasis Filter to a signal/data series
      *
@@ -479,14 +697,14 @@ public class Filter {
     }
 
     /**
-     * Apply a Moving Average Filter to a signal/data series
+     * Apply a Simple Moving Average Filter to a signal/data series
      *
      * @param x the signal or data series to be filtered
      * @param windowSize the size of the moving average window
      *
      * @return the filtered data
      */
-    public static float[] movingAvg(float[] x, int windowSize) {
+    public static float[] SMA(float[] x, int windowSize) {
         double[] b = new double[windowSize];
         for(int i = 0; i < windowSize; i++)
             b[i] = 1.0/windowSize;
@@ -496,14 +714,14 @@ public class Filter {
     }
 
     /**
-     * Apply a Moving Average Filter to a signal/data series
+     * Apply a Simple Moving Average Filter to a signal/data series
      *
      * @param x the signal or data series to be filtered
      * @param windowSize the size of the moving average window
      *
      * @return the filtered data
      */
-    public static double[] movingAvg(double[] x, int windowSize) {
+    public static double[] SMA(double[] x, int windowSize) {
         double[] b = new double[windowSize];
         for(int i = 0; i < windowSize; i++)
             b[i] = 1.0/windowSize;
@@ -512,31 +730,39 @@ public class Filter {
         return Filter.filter(b, a, x);
     }
 
-    private static void LPWindowedSincKernel(float[] h, float fc) {
-        int M = h.length - 1;
-        float sum = 0;
-        for(int i = 0; i <= M; i++) {
-            if(i == M/2) h[i] = (float)(2*pi*fc);
-            else h[i] = (float)(Math.sin(2*pi*fc*(i - (M/2)))/(i - (M/2)));
-            h[i] *= (0.54 - 0.46*Math.cos(2*pi*i/M));
-            sum += h[i];
-        }
-        for(int i = 0; i <= M; i++) {
-            h[i] /= sum;
-        }
-    }
+	/**
+	 * Apply an Exponential Moving Average Filter to a signal/data series
+	 *
+	 * @param x the signal or data series to be filtered
+	 * @param windowSize the size of the moving average window
+	 *
+	 * @return the filtered data
+	 */
+	public static float[] EMA(float[] x, int windowSize) {
+		double alpha = (windowSize - 1)/(windowSize + 1);
+		double[] a = new double[2];
+		a[0] = 1.0;
+		a[1] = alpha;
+		double[] b = new double[1];
+		b[0] = 1.0 - alpha;
+		return Filter.filter(b, a, x);
+	}
 
-    private static void LPWindowedSincKernel(double[] h, float fc) {
-        int M = h.length - 1;
-        double sum = 0;
-        for(int i = 0; i <= M; i++) {
-            if(i == M/2) h[i] = 2*pi*fc;
-            else h[i] = Math.sin(2*pi*fc*(i - (M/2)))/(i - (M/2));
-            h[i] *= 0.54 - 0.46*Math.cos(2*pi*i/M);
-            sum += h[i];
-        }
-        for(int i = 0; i <= M; i++) {
-            h[i] /= sum;
-        }
-    }
+	/**
+	 * Apply an Exponential Moving Average Filter to a signal/data series
+	 *
+	 * @param x the signal or data series to be filtered
+	 * @param windowSize the size of the moving average window
+	 *
+	 * @return the filtered data
+	 */
+	public static double[] EMA(double[] x, int windowSize) {
+		double alpha = (windowSize - 1)/(windowSize + 1);
+		double[] a = new double[2];
+		a[0] = 1.0;
+		a[1] = alpha;
+		double[] b = new double[1];
+		b[0] = 1.0 - alpha;
+		return Filter.filter(b, a, x);
+	}
 }

@@ -66,14 +66,8 @@ import funkatronics.code.tactilewaves.dsp.toolbox.YIN;
 
 public class PitchProcessor implements WaveProcessor {
 
-    private YIN mYin;
-
-    public PitchProcessor(int length) {
-        mYin = new YIN(length);
-    }
-
     public boolean process(WaveFrame frame) {
-        float pitch = mYin.YINpitch(frame.getSamples(), frame.getSampleRate());
+        float pitch = YIN.estimatePitchFast(frame.getSamples(), frame.getSampleRate());
         frame.addFeature("Pitch", pitch);
         return true;
     }

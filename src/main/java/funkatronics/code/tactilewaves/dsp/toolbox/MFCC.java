@@ -135,15 +135,24 @@ public class MFCC {
         // Initialize filter bank
         int[] f = initFilterBanks(Nfilt, minF, maxF, X.length, Fs);
 
-        // Compute filter bank
-        double[] fb = new double[Nfilt];
-        for(int m = 1; m <= Nfilt; m++) {
-            for(int k = f[m-1]; k <= f[m]; k++) fb[m-1] += X[k] * (k - f[m-1])/(f[m] - f[m-1]);
-            for(int k = f[m]; k <= f[m+1]; k++) fb[m-1] += X[k] * (f[m+1] - k)/(f[m+1] - f[m]);
-            //fb[m-1] = 20.0 * Math.log10(fb[m-1]);
-            if(fb[m-1] < 1e-5 || fb[m-1] != fb[m-1]) fb[m-1] = 1e-5;
-            fb[m-1] = Math.log(fb[m-1]);
-        }
+		// Compute filter bank
+		double[] fb = new double[Nfilt];
+		double sum;
+		for(int m = 1; m <= Nfilt; m++) {
+			sum = 0.0;
+			for(int k = f[m-1]; k <= f[m]; k++) {
+				fb[m-1] += X[k]*(double)(k - f[m-1])/(f[m] - f[m-1]);
+				sum += (double)(k - f[m-1])/(f[m] - f[m-1]);
+			}
+			for(int k = f[m]; k <= f[m+1]; k++) {
+				fb[m-1] += X[k]*(double)(f[m+1] - k)/(f[m+1] - f[m]);
+				sum += (double)(f[m+1] - k)/(f[m+1] - f[m]);
+			}
+			fb[m-1] /= sum;
+			if(fb[m-1] < 1e-5 || Double.isNaN(fb[m-1])) fb[m-1] = 1e-5;
+			fb[m-1] = Math.log(fb[m-1]);
+		}
+
 
         // DCT to decorrelate (whiten) the filter coefficients
         DCT.DCT(fb, true);
@@ -197,15 +206,23 @@ public class MFCC {
         // Initialize filters
         int[] f = initFilterBanks(Nfilt, minF, maxF, X.length, Fs);
 
-        // Compute filter bank
-        double[] fb = new double[Nfilt];
-        for(int m = 1; m <= Nfilt; m++) {
-            for(int k = f[m-1]; k <= f[m]; k++) fb[m-1] += X[k] * (k - f[m-1])/(f[m] - f[m-1]);
-            for(int k = f[m]; k <= f[m+1]; k++) fb[m-1] += X[k] * (f[m+1] - k)/(f[m+1] - f[m]);
-            //fb[m-1] = 20.0 * Math.log10(fb[m-1]);
-            if(fb[m-1] < 1e-5 || fb[m-1] != fb[m-1]) fb[m-1] = 1e-5;
-            fb[m-1] = Math.log(fb[m-1]);
-        }
+		// Compute filter bank
+		double[] fb = new double[Nfilt];
+		double sum;
+		for(int m = 1; m <= Nfilt; m++) {
+			sum = 0.0;
+			for(int k = f[m-1]; k <= f[m]; k++) {
+				fb[m-1] += X[k]*(double)(k - f[m-1])/(f[m] - f[m-1]);
+				sum += (double)(k - f[m-1])/(f[m] - f[m-1]);
+			}
+			for(int k = f[m]; k <= f[m+1]; k++) {
+				fb[m-1] += X[k]*(double)(f[m+1] - k)/(f[m+1] - f[m]);
+				sum += (double)(f[m+1] - k)/(f[m+1] - f[m]);
+			}
+			fb[m-1] /= sum;
+			if(fb[m-1] < 1e-5 || Double.isNaN(fb[m-1])) fb[m-1] = 1e-5;
+			fb[m-1] = Math.log(fb[m-1]);
+		}
 
         // DCT to decorrelate (whiten) the filter coefficients
         DCT.DCT(fb, true);
@@ -283,13 +300,13 @@ public class MFCC {
     private static void sinLifter(double[] array) {
         double D = array.length;
         for(int i = 1; i <= array.length; i++)
-            array[i-1] *= (1.0 + (D/2.0)*Math.sin(i*Math.PI/D));
+            array[i-1] *= (1. + (D/2.)*Math.sin(i*Math.PI/D));
     }
 
     // Perform exponential liftering on an array
     private static void expLifter(double[] array) {
         double s = 1.5;
-        double tau = 5.0;
+        double tau = 5.;
         for(int i = 1; i <= array.length; i++)
             array[i-1] *= (Math.pow(i, s)*Math.exp(-i*i/(2*tau*tau)));
     }
@@ -303,14 +320,14 @@ public class MFCC {
     private static double freq2Mel(double f) {
         // maybe should use 1127 instead of 1125
         //return (1125.0 * Math.log(1 + f/700));
-        return 2595.0 * Math.log10(1 + f/700.0);
+        return 2595. * Math.log10(1. + f/700.);
     }
 
     // Convert a mel scale value to frequency (Hz)
     private static double mel2Freq(double mel) {
         // maybe should use 1127 instead of 1125
-        //return 700.0 * (Math.exp(mel/1125.0) - 1);
-        return 700.0 * (Math.pow(10, mel/2595.0) - 1);
+        //return 700. * (Math.exp(mel/1125.) - 1);
+        return 700. * (Math.pow(10., mel/2595.) - 1.);
     }
 
 }

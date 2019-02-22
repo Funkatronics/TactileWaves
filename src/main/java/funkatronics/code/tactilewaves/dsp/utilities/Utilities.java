@@ -133,10 +133,27 @@ public class Utilities {
 	public static float max(float[] data) {
         float max = -Float.MAX_VALUE;
         for (float value : data) {
-            if (value > max) max = value;
+            if (value > max)
+            	max = value;
         }
         return max;
     }
+
+	/**
+	 * Find the maximum of an array
+	 *
+	 * @param data the array
+	 *
+	 * @return the maximum value in the array
+	 */
+	public static double max(double[] data) {
+		double max = -Double.MAX_VALUE;
+		for (double value : data) {
+			if (value > max)
+				max = value;
+		}
+		return max;
+	}
 
 	/**
 	 * Find the index location of the maximum value of an array
@@ -164,7 +181,7 @@ public class Utilities {
 	 *
 	 * @return the average of all the values in the array
 	 */
-	public static float avgArray(float[] data) {
+	public static float arrayAvg(float[] data) {
         float sum = 0;
         for (float value : data) sum += value;
         return sum/data.length;
@@ -176,7 +193,7 @@ public class Utilities {
 	 * @param data the array
 	 * @param numPeaks the number of peaks to find
 	 *
-	 * @return the highest peaks in the array, in descending order
+	 * @return the indices of the N highest peaks in the array, in descending order
 	 */
     public static int[] findHighestPeaks(float[] data, int numPeaks){
         int peaks[] = new int[numPeaks];
@@ -203,7 +220,7 @@ public class Utilities {
 	 * @param data the array
 	 * @param numPeaks the number of peaks to find
 	 *
-	 * @return the lowest peaks in the array, in ascending order
+	 * @return the indices of the N lowest peaks in the array, in ascending order
 	 */
     public static int[] findLowestPeaks(float[] data, int numPeaks){
         int peaks[] = new int[numPeaks];
@@ -228,7 +245,7 @@ public class Utilities {
 	 * @param data the array
 	 * @param numPeaks the number of peaks to find
 	 *
-	 * @return the first peaks in the array, in the order they appear
+	 * @return the indices of the first N peaks in the array, in the order they appear
 	 */
     public static int[] findOrderedPeaks(float[] data, int numPeaks) {
         int peaks[] = new int[numPeaks];

@@ -88,7 +88,7 @@ public class RootSolver {
      */
     public static Complex[] roots(double[] p, boolean maximizeAccuracy)
             throws SolverNotConvergedException {
-        // from testing, this delta value results in more accurate roots solving than MatLab's root() function
+        // from testing, this delta value results in more accurate root solving than MatLab's own root() function
         if(maximizeAccuracy) return DKRoots(p, 0.00000000000001, 1000);
         // from testing, this delta value gives a balance of accuracy and performance
         else return DKRoots(p, 0.0001, 100);
